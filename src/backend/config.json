@@ -1,0 +1,15 @@
+{
+    "password_len": 10,
+    "password_requirements": {
+        "uppercase": 1,
+        "special_char": 1,
+        "number": 1
+},
+
+    "password_history" : 3 ,
+
+    "number_of_attempts" : 3 
+    
+
+    
+  }
