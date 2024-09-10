@@ -1,26 +1,55 @@
-import React, { useState } from 'react';
-import { TextField, Button, Box, Typography, Paper, Link } from '@mui/material';
-import { styled } from '@mui/system';
-import axios from 'axios';
+import React, { useState } from "react";
+import { TextField, Button, Box, Typography, Paper } from "@mui/material";
+import { styled } from "@mui/system";
+import axios from "axios";
+import CloseIcon from "@mui/icons-material/Close";
+import CheckIcon from "@mui/icons-material/Check";
 import passwordValue from "../backend/config.json";
 
-
 const RegisterWrapper = styled(Paper)({
-  padding: '40px',
-  margin: '20px auto',
-  maxWidth: '400px',
-  backgroundColor: '#f5f5f5',
+  padding: "40px",
+  margin: "20px auto",
+  maxWidth: "400px",
+  backgroundColor: "#f5f5f5",
+});
+
+const requirementStyle = (isValid) => ({
+  display: "flex",
+  alignItems: "center",
+  color: isValid ? "green" : "red",
+  marginTop: "5px",
 });
 
 const Register = () => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [username, setUsername] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [username, setUsername] = useState("");
+
+  // Track password validation states
+  const [passwordValidations, setPasswordValidations] = useState({
+    length: false,
+    uppercase: false,
+    specialChar: false,
+    number: false,
+  });
+
+  const handlePasswordChange = (e) => {
+    const value = e.target.value;
+    setPassword(value);
+
+    // Check each password requirement
+    setPasswordValidations({
+      length: value.length >= passwordValue.password_len,
+      uppercase: /[A-Z]/.test(value),
+      specialChar: /[!@#$%^&*(),.?":{}|<>]/.test(value),
+      number: /[0-9]/.test(value),
+    });
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post('http://localhost:8000/register/', {
+      const response = await axios.post("http://localhost:8000/register/", {
         username: username,
         email: email,
         password: password,
@@ -28,7 +57,7 @@ const Register = () => {
       alert(`User ${response.data.username} registered successfully`);
     } catch (error) {
       console.error("There was an error registering the user!", error);
-      alert('One of the fields is incorrect');
+      alert("One of the fields is incorrect");
     }
   };
 
@@ -58,17 +87,34 @@ const Register = () => {
           label="Password"
           type="password"
           value={password}
-          onChange={(e) => setPassword(e.target.value)}
+          onChange={handlePasswordChange}
           fullWidth
           margin="normal"
           required
         />
-        <Typography variant="body1">
-          The password must contain {passwordValue.password_len} characters. <br/>
-          The password must contain {passwordValue.password_requirements.uppercase} upper case. <br/>
-          The password must contain {passwordValue.password_requirements.special_char} special characters. <br/>
-          The password must contain {passwordValue.password_requirements.number} numbers. <br/>
+
+        <Typography variant="body1" gutterBottom>
+          Password Requirements:
         </Typography>
+        <Typography style={requirementStyle(passwordValidations.length)}>
+          {passwordValidations.length ? <CheckIcon /> : <CloseIcon />} Must be
+          at least {passwordValue.password_len} characters.
+        </Typography>
+        <Typography style={requirementStyle(passwordValidations.uppercase)}>
+          {passwordValidations.uppercase ? <CheckIcon /> : <CloseIcon />} Must
+          contain at least {passwordValue.password_requirements.uppercase}{" "}
+          uppercase letter.
+        </Typography>
+        <Typography style={requirementStyle(passwordValidations.specialChar)}>
+          {passwordValidations.specialChar ? <CheckIcon /> : <CloseIcon />} Must
+          contain at least {passwordValue.password_requirements.special_char}{" "}
+          special character.
+        </Typography>
+        <Typography style={requirementStyle(passwordValidations.number)}>
+          {passwordValidations.number ? <CheckIcon /> : <CloseIcon />} Must
+          contain at least {passwordValue.password_requirements.number} number.
+        </Typography>
+
         <Box mt={3}>
           <Button type="submit" variant="contained" color="primary" fullWidth>
             Register
