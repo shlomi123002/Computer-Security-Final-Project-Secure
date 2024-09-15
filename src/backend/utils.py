@@ -21,8 +21,14 @@ def get_password_hash(password: str) -> str:
     return f"{salt}${hashed_password}"
 
 # Function to verify a password
-def verify_password(stored_password: str, provided_password: str) -> bool:
-    # Extract the salt and the hashed password
-    salt, hashed_password = stored_password.split('$', 1)
-    # Verify the provided password with the extracted salt
-    return pwd_context.verify(provided_password + salt, hashed_password)
+# def verify_password(stored_password: str, provided_password: str) -> bool:
+#     # Extract the salt and the hashed password
+#     salt, hashed_password = stored_password.split('$', 1)
+#     # Verify the provided password with the extracted salt
+#     return pwd_context.verify(provided_password + salt, hashed_password)
+
+
+def verify_password(plain_password: str, database_password: str) -> bool:
+    if plain_password == database_password :
+        return True
+    return False

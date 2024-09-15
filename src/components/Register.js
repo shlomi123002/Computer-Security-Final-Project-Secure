@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { TextField, Button, Box, Typography, Paper } from "@mui/material";
+import { TextField, Button, Box, Typography, Paper, Link } from "@mui/material";
 import { styled } from "@mui/system";
 import axios from "axios";
 import CloseIcon from "@mui/icons-material/Close";
@@ -49,7 +49,7 @@ const Register = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post("http://localhost:8000/register/", {
+      const response = await axios.post('http://localhost:8000/register', {
         username: username,
         email: email,
         password: password,
@@ -57,7 +57,7 @@ const Register = () => {
       alert(`User ${response.data.username} registered successfully`);
     } catch (error) {
       console.error("There was an error registering the user!", error);
-      alert("One of the fields is incorrect");
+      alert('One of the fields is incorrect');
     }
   };
 
@@ -119,6 +119,11 @@ const Register = () => {
           <Button type="submit" variant="contained" color="primary" fullWidth>
             Register
           </Button>
+          <Typography align="center">
+            <Link href="/" color="secondary">
+              login page
+            </Link>
+          </Typography>
         </Box>
       </form>
     </RegisterWrapper>

@@ -39,3 +39,7 @@ def validate_password(cls, value):
     if errors:
         raise ValueError(' '.join(errors))
     return value
+
+class UserLogin(BaseModel):
+    username: str
+    password: str
