@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
 import { TextField, Button, Box, Typography, Paper, Link } from '@mui/material';
 import { styled } from '@mui/system';
-import BackgroundImage  from '../images/communication_LTD.jpg'; 
+import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
+import BackgroundImage from '../images/communication_LTD.jpg';
 
 const FullScreenContainer = styled('div')({
   height: '100vh',
@@ -24,11 +26,26 @@ const ForgotPasswordWrapper = styled(Paper)({
 
 const ForgotPassword = () => {
   const [email, setEmail] = useState('');
+  const [error, setError] = useState('');
+  const [message, setMessage] = useState('');
+  const navigate = useNavigate();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // סימולציה של שליחת קוד התאוששות
-    alert(`Recovery code sent to ${email}`);
+    try {
+      const response = await axios.post('http://localhost:8000/forgot-password/', {
+        email: email,
+      });
+      setMessage(response.data.msg);
+      // Redirect to reset password page after recovery code is sent
+      navigate('/reset-password', { state: { email: email } });
+    } catch (error) {
+      if (error.response && error.response.status === 404) {
+        setError('Email not found');
+      } else {
+        setError('An error occurred while sending the recovery code');
+      }
+    }
   };
 
   return (
@@ -46,17 +63,27 @@ const ForgotPassword = () => {
             margin="normal"
             required
           />
+          {error && (
+            <Typography align="center" color="error" mt={2}>
+              {error}
+            </Typography>
+          )}
+          {message && (
+            <Typography align="center" color="primary" mt={2}>
+              {message}
+            </Typography>
+          )}
           <Box mt={3}>
             <Button type="submit" variant="contained" color="primary" fullWidth>
               Send Recovery Code
             </Button>
-            <Typography align="center">
-              <Link href="/" color="secondary">
-                login page
-              </Link>
-            </Typography>
           </Box>
         </form>
+        <Typography align="center" mt={2}>
+          <Link href="/" color="secondary">
+            Back to Login
+          </Link>
+        </Typography>
       </ForgotPasswordWrapper>
     </FullScreenContainer>
   );
