@@ -1,44 +1,40 @@
-import React, { useState } from "react";
-import { TextField, Button, Box, Typography, Paper } from "@mui/material";
-import { styled } from "@mui/system";
-import { useNavigate } from "react-router-dom";
-import axios from "axios";
+import React, { useState } from 'react';
+import { TextField, Button, Box, Typography, Paper } from '@mui/material';
+import { styled } from '@mui/system';
 import CloseIcon from "@mui/icons-material/Close";
 import CheckIcon from "@mui/icons-material/Check";
 import passwordValue from "../backend/config.json";
+import axios from "axios";
+import { useNavigate } from 'react-router-dom';
 
-const RegisterWrapper = styled(Paper)({
-  padding: "40px",
-  margin: "20px auto",
-  maxWidth: "400px",
-  backgroundColor: "#f5f5f5",
+const ChangePasswordWrapper = styled(Paper)({
+  padding: '40px',
+  margin: '20px auto',
+  maxWidth: '400px',
+  backgroundColor: '#f5f5f5',
 });
 
-const requirementStyle = (isValid) => ({
-  display: "flex",
-  alignItems: "center",
-  color: isValid ? "green" : "red",
-  marginTop: "5px",
-});
-
-const Register = () => {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [username, setUsername] = useState("");
-
-  // Track password validation states
+const PasswordChange = () => {
+  const [currentPassword, setCurrentPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
   const [passwordValidations, setPasswordValidations] = useState({
     length: false,
     uppercase: false,
     specialChar: false,
     number: false,
   });
+  const navigate = useNavigate();  // Initialize useNavigate
 
-  const navigate = useNavigate();
+  const requirementStyle = (isValid) => ({
+    display: "flex",
+    alignItems: "center",
+    color: isValid ? "green" : "red",
+    marginTop: "5px",
+  });
 
   const handlePasswordChange = (e) => {
     const value = e.target.value;
-    setPassword(value);
+    setNewPassword(value);
 
     // Check each password requirement
     setPasswordValidations({
@@ -51,55 +47,52 @@ const Register = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
     try {
-      const response = await axios.post('http://localhost:8000/register', {
-        username: username,
-        email: email,
-        password: password,
+      const response = await axios.put('http://localhost:8000/change-password/', {
+        user_id: 25, 
+        current_password: currentPassword,
+        new_password: newPassword,
       });
-      alert(`User ${response.data.username} registered successfully`);
-      navigate('/'); // Redirect to login page after successful registration
+      alert(response.data.msg);
+      navigate('/dashboard'); // Navigate to dashboard on successful password change
     } catch (error) {
-      console.error("There was an error registering the user!", error);
-      alert('One of the fields is incorrect');
+      alert("Failed to change password. Please check your current password.");
     }
   };
 
+  const handleBackToDashboard = () => {
+    navigate('/dashboard'); // Navigate to dashboard
+  };
+
+  const handleBackToLogin = () => {
+    navigate('/'); // Navigate to login page
+  };
+
   return (
-    <RegisterWrapper elevation={6}>
+    <ChangePasswordWrapper elevation={6}>
       <Typography variant="h5" align="center" gutterBottom>
-        Create an Account
+        Change Your Password
       </Typography>
       <form onSubmit={handleSubmit}>
         <TextField
-          label="Username"
-          value={username}
-          onChange={(e) => setUsername(e.target.value)}
-          fullWidth
-          margin="normal"
-          required
-        />
-        <TextField
-          label="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          fullWidth
-          margin="normal"
-          required
-        />
-        <TextField
-          label="Password"
+          label="Current Password"
           type="password"
-          value={password}
+          value={currentPassword}
+          onChange={(e) => setCurrentPassword(e.target.value)}
+          fullWidth
+          margin="normal"
+          required
+        />
+        <TextField
+          label="New Password"
+          type="password"
+          value={newPassword}
           onChange={handlePasswordChange}
           fullWidth
           margin="normal"
           required
         />
-
-        <Typography variant="body1" gutterBottom>
-          Password Requirements:
-        </Typography>
         <Typography style={requirementStyle(passwordValidations.length)}>
           {passwordValidations.length ? <CheckIcon /> : <CloseIcon />} Must be
           at least {passwordValue.password_len} characters.
@@ -118,20 +111,24 @@ const Register = () => {
           {passwordValidations.number ? <CheckIcon /> : <CloseIcon />} Must
           contain at least {passwordValue.password_requirements.number} number.
         </Typography>
-
         <Box mt={3}>
           <Button type="submit" variant="contained" color="primary" fullWidth>
-            Register
+            Change Password
           </Button>
-          <Typography align="center" marginTop={2}>
-            <Button onClick={() => navigate('/')} color="secondary">
-              Login Page
+          <Box mt={2} textAlign="center">
+            <Button color="secondary" onClick={handleBackToDashboard}>
+              Back to Dashboard
             </Button>
-          </Typography>
+          </Box>
+          <Box mt={2} textAlign="center">
+            <Button color="secondary" onClick={handleBackToLogin}>
+              Back to Login
+            </Button>
+          </Box>
         </Box>
       </form>
-    </RegisterWrapper>
+    </ChangePasswordWrapper>
   );
 };
 
-export default Register;
+export default PasswordChange;

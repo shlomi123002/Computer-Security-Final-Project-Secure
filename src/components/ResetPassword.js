@@ -1,8 +1,11 @@
 import React, { useState } from 'react';
-import { TextField, Button, Box, Typography, Paper } from '@mui/material';
+import { TextField, Button, Box, Typography, Paper, Link } from '@mui/material';
 import { styled } from '@mui/system';
 import { useLocation, useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import CloseIcon from "@mui/icons-material/Close";
+import CheckIcon from "@mui/icons-material/Check";
+import passwordValue from "../backend/config.json";
 
 const FullScreenContainer = styled('div')({
   height: '100vh',
@@ -11,6 +14,13 @@ const FullScreenContainer = styled('div')({
   justifyContent: 'center',
   alignItems: 'center',
   backgroundColor: '#f5f5f5',
+});
+
+const requirementStyle = (isValid) => ({
+  display: "flex",
+  alignItems: "center",
+  color: isValid ? "green" : "red",
+  marginTop: "5px",
 });
 
 const ResetPasswordWrapper = styled(Paper)({
@@ -26,8 +36,26 @@ const ResetPassword = () => {
   const [newPassword, setNewPassword] = useState('');
   const [error, setError] = useState('');
   const [message, setMessage] = useState('');
+  const [passwordValidations, setPasswordValidations] = useState({
+    length: false,
+    uppercase: false,
+    specialChar: false,
+    number: false,
+  });
 
-  const email = location.state?.email; // Get email from state
+  const email = location.state?.email;
+
+  const handlePasswordChange = (e) => {
+    const value = e.target.value;
+    setNewPassword(value);
+
+    setPasswordValidations({
+      length: value.length >= passwordValue.password_len,
+      uppercase: /[A-Z]/.test(value),
+      specialChar: /[!@#$%^&*(),.?":{}|<>]/.test(value),
+      number: /[0-9]/.test(value),
+    });
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -38,7 +66,6 @@ const ResetPassword = () => {
         new_password: newPassword,
       });
       setMessage(response.data.msg);
-      // Redirect to login after successful reset
       setTimeout(() => {
         navigate('/');
       }, 2000);
@@ -66,11 +93,29 @@ const ResetPassword = () => {
             label="New Password"
             type="password"
             value={newPassword}
-            onChange={(e) => setNewPassword(e.target.value)}
+            onChange={handlePasswordChange}
             fullWidth
             margin="normal"
             required
           />
+        <Typography style={requirementStyle(passwordValidations.length)}>
+          {passwordValidations.length ? <CheckIcon /> : <CloseIcon />} Must be
+          at least {passwordValue.password_len} characters.
+        </Typography>
+        <Typography style={requirementStyle(passwordValidations.uppercase)}>
+          {passwordValidations.uppercase ? <CheckIcon /> : <CloseIcon />} Must
+          contain at least {passwordValue.password_requirements.uppercase}{" "}
+          uppercase letter.
+        </Typography>
+        <Typography style={requirementStyle(passwordValidations.specialChar)}>
+          {passwordValidations.specialChar ? <CheckIcon /> : <CloseIcon />} Must
+          contain at least {passwordValue.password_requirements.special_char}{" "}
+          special character.
+        </Typography>
+        <Typography style={requirementStyle(passwordValidations.number)}>
+          {passwordValidations.number ? <CheckIcon /> : <CloseIcon />} Must
+          contain at least {passwordValue.password_requirements.number} number.
+        </Typography>
           {error && (
             <Typography align="center" color="error" mt={2}>
               {error}
@@ -85,6 +130,11 @@ const ResetPassword = () => {
             <Button type="submit" variant="contained" color="primary" fullWidth>
               Reset Password
             </Button>
+            <Typography align="center">
+            <Link href="/" color="secondary">
+              login page
+            </Link>
+          </Typography>
           </Box>
         </form>
       </ResetPasswordWrapper>

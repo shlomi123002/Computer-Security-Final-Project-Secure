@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { TextField, Button, Box, Typography, Paper, Link } from '@mui/material';
+import { TextField, Button, Box, Typography, Paper } from '@mui/material';
 import { styled } from '@mui/system';
+import { useNavigate } from 'react-router-dom';
 
 const DashboardWrapper = styled(Paper)({
   padding: '40px',
@@ -14,13 +15,20 @@ const Dashboard = () => {
   const [clientLastName, setLastName] = useState('');
   const [clientPhoneNumber, setPhoneNumber] = useState('');
   const [clientEmail, setEmail] = useState('');
-
-
+  const navigate = useNavigate();  // Initialize useNavigate
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    // סימולציה של הוספת לקוח חדש
+    // Simulate adding a new client
     alert(`Client ${clientFirstName} ${clientLastName} added successfully`);
+  };
+
+  const handleChangePassword = () => {
+    navigate('/change-password', { state: { username: 'exampleUser' } }); // Pass username or any other required state
+  };
+
+  const handleLoginPage = () => {
+    navigate('/');
   };
 
   return (
@@ -37,13 +45,13 @@ const Dashboard = () => {
           margin="normal"
           required
         />
-          <TextField
-            label="Client Last Name"
-            value={clientLastName}
-            onChange={(e) => setLastName(e.target.value)}
-            fullWidth
-            margin="normal"
-            required
+        <TextField
+          label="Client Last Name"
+          value={clientLastName}
+          onChange={(e) => setLastName(e.target.value)}
+          fullWidth
+          margin="normal"
+          required
         />
         <TextField
           label="Client Phone Number"
@@ -52,7 +60,7 @@ const Dashboard = () => {
           fullWidth
           margin="normal"
           required
-          />
+        />
         <TextField
           label="Client Email"
           value={clientEmail}
@@ -71,16 +79,16 @@ const Dashboard = () => {
         <Typography variant="body1">
           Recently added client: {clientFirstName} {clientLastName}
         </Typography>
-        <Typography align="center">
-            <Link href="/change-password" color="secondary">
-             change password
-            </Link>
-          </Typography>
-        <Typography align="center">
-            <Link href="/" color="secondary">
-              login page
-            </Link>
-          </Typography>
+        <Box mt={2} textAlign="center">
+          <Button color="secondary" onClick={handleChangePassword}>
+            Change Password
+          </Button>
+        </Box>
+        <Box mt={2} textAlign="center">
+          <Button color="secondary" onClick={handleLoginPage}>
+            Login Page
+          </Button>
+        </Box>
       </Box>
     </DashboardWrapper>
   );

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { TextField, Button, Box, Typography, Paper, Link } from '@mui/material';
+import { TextField, Button, Box, Typography, Paper } from '@mui/material';
 import { styled } from '@mui/system';
 import { useNavigate } from 'react-router-dom';
 import BackgroundImage from '../images/communication_LTD.jpg';
@@ -26,13 +26,12 @@ const LoginWrapper = styled(Paper)({
 const Login = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  const [error, setError] = useState(''); // To display error messages
+  const [error, setError] = useState('');
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      // Replace with your actual login API endpoint
       const response = await axios.post('http://localhost:8000/login/', {
         username: username,
         password: password,
@@ -40,23 +39,27 @@ const Login = () => {
 
       if (response.status === 200) {
         // Navigate to the dashboard on successful login
-        navigate('/Dashboard');
+        navigate('/Dashboard', { state: { username } });
       } else {
         setError('Invalid username or password');
       }
     } catch (error) {
       if (error.response) {
-        // The request was made and the server responded with a status code
-        // that falls out of the range of 2xx
         setError(error.response.data.detail || 'An error occurred');
       } else if (error.request) {
-        // The request was made but no response was received
         setError('No response from server');
       } else {
-        // Something happened in setting up the request that triggered an Error
         setError('Error in setting up the request');
       }
     }
+  };
+
+  const handleForgotPassword = () => {
+    navigate('/forgot-password');
+  };
+
+  const handleRegister = () => {
+    navigate('/Register');
   };
 
   return (
@@ -99,14 +102,14 @@ const Login = () => {
         </form>
         <Box mt={2}>
           <Typography align="center">
-            <Link href="/forgot-password" color="secondary">
+            <Button onClick={handleForgotPassword} color="secondary">
               Forgot your password?
-            </Link>
+            </Button>
           </Typography>
           <Typography align="center">
-            <Link href="/Register" color="secondary">
+            <Button onClick={handleRegister} color="secondary">
               Register
-            </Link>
+            </Button>
           </Typography>
         </Box>
       </LoginWrapper>

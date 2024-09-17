@@ -1,10 +1,8 @@
 from fastapi import APIRouter, HTTPException, Depends
 from sqlalchemy.orm import Session
 from schemas import UserCreate, UserLogin
-from crud import create_user
+from crud import create_user, validate_user, get_user_by_id, update_password
 from database import get_db
-from crud import create_user, validate_user
-from crud import get_user_by_email, update_password
 from utils import send_recovery_code, verify_password
 from pydantic import BaseModel
 
@@ -28,25 +26,25 @@ def login_user(user: UserLogin, db: Session = Depends(get_db)):
             raise HTTPException(status_code=400, detail="Invalid username or password")
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
- 
+
 class ForgotPasswordRequest(BaseModel):
-    email: str
+    user_id: int
 
 class ResetPasswordRequest(BaseModel):
-    email: str
+    user_id: int
     recovery_code: str
     new_password: str
 
 @user_router.post("/forgot-password/")
 def forgot_password(request: ForgotPasswordRequest, db: Session = Depends(get_db)):
-    user = get_user_by_email(db, request.email)
+    user = get_user_by_id(db, request.user_id)  # Change to use user_id
     if not user:
-        raise HTTPException(status_code=404, detail="Email not found")
+        raise HTTPException(status_code=404, detail="User ID not found")
     
     # Generate and send the recovery code
     recovery_code = send_recovery_code(user.email)
     
-    # Store the recovery code in the user object or database (you may want to implement a better storage mechanism)
+    # Store the recovery code in the user object or database
     user.recovery_code = recovery_code
     db.commit()
     
@@ -54,9 +52,9 @@ def forgot_password(request: ForgotPasswordRequest, db: Session = Depends(get_db
 
 @user_router.post("/reset-password/")
 def reset_password(request: ResetPasswordRequest, db: Session = Depends(get_db)):
-    user = get_user_by_email(db, request.email)
+    user = get_user_by_id(db, request.user_id)  # Change to use user_id
     if not user:
-        raise HTTPException(status_code=404, detail="Email not found")
+        raise HTTPException(status_code=404, detail="User ID not found")
     
     # Check if the provided recovery code matches the one stored
     if user.recovery_code != request.recovery_code:
@@ -65,3 +63,26 @@ def reset_password(request: ResetPasswordRequest, db: Session = Depends(get_db))
     # Update the password
     update_password(db, user, request.new_password)
     return {"msg": "Password reset successful"}
+
+class PasswordChangeRequest(BaseModel):
+    user_id: int
+    current_password: str
+    new_password: str
+
+# Password change route
+@user_router.put("/change-password/") 
+async def change_password(request: PasswordChangeRequest, db: Session = Depends(get_db)):
+    user = get_user_by_id(db, request.user_id)
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    # Step 1: Verify current password
+    if not verify_password(request.current_password, user.password):
+        raise HTTPException(status_code=400, detail="Incorrect current password")
+
+    # Step 2: Hash the new password and update the database
+    hashed_new_password = request.new_password
+    user.password = hashed_new_password
+    db.commit()
+
+    return {"msg": "Password updated successfully"}

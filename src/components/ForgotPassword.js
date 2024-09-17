@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { TextField, Button, Box, Typography, Paper, Link } from '@mui/material';
+import { TextField, Button, Box, Typography, Paper } from '@mui/material';
 import { styled } from '@mui/system';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
@@ -80,9 +80,9 @@ const ForgotPassword = () => {
           </Box>
         </form>
         <Typography align="center" mt={2}>
-          <Link href="/" color="secondary">
+          <Button onClick={() => navigate('/')} color="secondary">
             Back to Login
-          </Link>
+          </Button>
         </Typography>
       </ForgotPasswordWrapper>
     </FullScreenContainer>
