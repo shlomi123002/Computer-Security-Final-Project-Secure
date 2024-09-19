@@ -56,6 +56,9 @@ def validate_user(db: Session, username: str, password: str):
 def get_user_by_name(db: Session, user_name: str):
     return db.query(User).filter(User.userName == user_name).first()
 
+def get_user_by_email(db: Session, user_email: str):
+    return db.query(User).filter(User.email == user_email).first()
+
 def update_password(db: Session, user: User, new_password: str):
     hashed_password = get_password_hash(new_password)
     user.password = hashed_password

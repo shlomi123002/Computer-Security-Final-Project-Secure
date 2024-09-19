@@ -1,7 +1,7 @@
 from fastapi import APIRouter, HTTPException, Depends
 from sqlalchemy.orm import Session
 from schemas import ClientCreate,UserCreate, UserLogin
-from crud import create_user, validate_user, get_user_by_name, update_password,create_client
+from crud import create_user, validate_user, get_user_by_name, update_password,create_client,get_user_by_email
 from database import get_db
 from utils import send_recovery_code, verify_password
 from pydantic import BaseModel
@@ -28,36 +28,39 @@ def login_user(user: UserLogin, db: Session = Depends(get_db)):
         raise HTTPException(status_code=400, detail=str(e))
 
 class ForgotPasswordRequest(BaseModel):
-    user_id: int
+    user_email: str
 
 class ResetPasswordRequest(BaseModel):
-    user_id: int
-    recovery_code: str
+    user_email: str
+    recovery_code: int
     new_password: str
+
+top_recovery_code = 0
 
 @user_router.post("/forgot-password/")
 def forgot_password(request: ForgotPasswordRequest, db: Session = Depends(get_db)):
-    user = get_user_by_name(db, request.user_id)  # Change to use user_id
+    global top_recovery_code
+    user = get_user_by_email(db, request.user_email) 
     if not user:
         raise HTTPException(status_code=404, detail="User ID not found")
     
     # Generate and send the recovery code
     recovery_code = send_recovery_code(user.email)
     
-    # Store the recovery code in the user object or database
-    user.recovery_code = recovery_code
+    # Store the recovery code in the user object or databaseS
+    top_recovery_code = recovery_code
     db.commit()
     
     return {"msg": "Recovery code sent to your email"}
 
 @user_router.post("/reset-password/")
 def reset_password(request: ResetPasswordRequest, db: Session = Depends(get_db)):
-    user = get_user_by_name(db, request.user_id)  # Change to use user_id
+    user = get_user_by_email(db, request.user_email)  # Change to use user_id
     if not user:
         raise HTTPException(status_code=404, detail="User ID not found")
     
     # Check if the provided recovery code matches the one stored
-    if user.recovery_code != request.recovery_code:
+    if int(top_recovery_code) != request.recovery_code:
         raise HTTPException(status_code=400, detail="Invalid recovery code")
     
     # Update the password

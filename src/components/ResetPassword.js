@@ -61,7 +61,7 @@ const ResetPassword = () => {
     e.preventDefault();
     try {
       const response = await axios.post('http://localhost:8000/reset-password/', {
-        email: email,
+        user_email: email,
         recovery_code: recoveryCode,
         new_password: newPassword,
       });
@@ -131,9 +131,9 @@ const ResetPassword = () => {
               Reset Password
             </Button>
             <Typography align="center">
-            <Link href="/" color="secondary">
-              login page
-            </Link>
+            <Button onClick={()=>{navigate('/');}} color="secondary">
+              Login page
+            </Button>
           </Typography>
           </Box>
         </form>

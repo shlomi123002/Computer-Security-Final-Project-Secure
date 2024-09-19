@@ -30,11 +30,13 @@ const ForgotPassword = () => {
   const [message, setMessage] = useState('');
   const navigate = useNavigate();
 
+
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post('http://localhost:8000/forgot-password/', {
-        email: email,
+      const response = await axios.post('http://localhost:8000/forgot-password', {
+        user_email: email,
       });
       setMessage(response.data.msg);
       // Redirect to reset password page after recovery code is sent

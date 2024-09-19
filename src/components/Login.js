@@ -56,11 +56,11 @@ const Login = () => {
   };
 
   const handleForgotPassword = () => {
-    navigate('/forgot-password');
+    navigate('/forgot-password', { state: { username } });
   };
 
   const handleRegister = () => {
-    navigate('/Register');
+    navigate('/Register', { state: { username } });
   };
 
   return (
