@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
 import { TextField, Button, Box, Typography, Paper } from '@mui/material';
 import { styled } from '@mui/system';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
+import axios from 'axios';
+
 
 const DashboardWrapper = styled(Paper)({
   padding: '40px',
@@ -16,15 +18,45 @@ const Dashboard = () => {
   const [clientPhoneNumber, setPhoneNumber] = useState('');
   const [clientEmail, setEmail] = useState('');
   const navigate = useNavigate();  // Initialize useNavigate
+  const {state} = useLocation();
+  const { username } = state;
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Simulate adding a new client
-    alert(`Client ${clientFirstName} ${clientLastName} added successfully`);
-  };
+
+    const clientData = {
+      userName: username,
+      clientFirstName,
+      clientLastName,
+      clientPhoneNumber,
+      clientEmail,
+    };
+
+    try {
+      const response = await axios.post('http://localhost:8000/Dashboard', clientData, {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+    
+      if (response.status === 200) {
+        alert('Client added successfully');
+        // Clear the form fields after successful submission
+        setFirstName('');
+        setLastName('');
+        setPhoneNumber('');
+        setEmail('');
+      } else {
+        alert('Failed to add client');
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      alert('An error occurred. Please try again later.');
+    }
+  }
 
   const handleChangePassword = () => {
-    navigate('/change-password', { state: { username: 'exampleUser' } }); // Pass username or any other required state
+    navigate('/change-password', { state: { username: username } });
   };
 
   const handleLoginPage = () => {
@@ -34,7 +66,7 @@ const Dashboard = () => {
   return (
     <DashboardWrapper elevation={6}>
       <Typography variant="h5" align="center" gutterBottom>
-        Client Management Dashboard
+        Hello {username}
       </Typography>
       <form onSubmit={handleSubmit}>
         <TextField

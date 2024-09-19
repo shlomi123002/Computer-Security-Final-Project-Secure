@@ -5,7 +5,7 @@ import CloseIcon from "@mui/icons-material/Close";
 import CheckIcon from "@mui/icons-material/Check";
 import passwordValue from "../backend/config.json";
 import axios from "axios";
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 const ChangePasswordWrapper = styled(Paper)({
   padding: '40px',
@@ -24,6 +24,8 @@ const PasswordChange = () => {
     number: false,
   });
   const navigate = useNavigate();  // Initialize useNavigate
+  const {state} = useLocation();
+  const { username } = state;
 
   const requirementStyle = (isValid) => ({
     display: "flex",
@@ -47,15 +49,14 @@ const PasswordChange = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     try {
       const response = await axios.put('http://localhost:8000/change-password/', {
-        user_id: 25, 
+        user_name: username, 
         current_password: currentPassword,
         new_password: newPassword,
       });
       alert(response.data.msg);
-      navigate('/dashboard'); // Navigate to dashboard on successful password change
+      navigate('/Dashboard', { state: { username } });
     } catch (error) {
       alert("Failed to change password. Please check your current password.");
     }

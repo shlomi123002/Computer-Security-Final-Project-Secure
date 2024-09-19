@@ -3,6 +3,8 @@ from models import User
 from schemas import UserCreate
 from utils import get_password_hash, verify_password
 from sqlalchemy import text
+from models import Client
+from schemas import ClientCreate
 
 def create_user(db: Session, user: UserCreate):
     # Check if username is already registered
@@ -51,11 +53,26 @@ def validate_user(db: Session, username: str, password: str):
     return None
 
 
-def get_user_by_id(db: Session, user_id: int):
-    return db.query(User).filter(User.userID == user_id).first()
+def get_user_by_name(db: Session, user_name: str):
+    return db.query(User).filter(User.userName == user_name).first()
 
 def update_password(db: Session, user: User, new_password: str):
     hashed_password = get_password_hash(new_password)
     user.password = hashed_password
     user.recovery_code = None  # Clear recovery code after password reset
     db.commit()
+
+def create_client(db: Session, client: ClientCreate):
+    db_client = Client(
+        userName=client.userName,
+        clientFirstName=client.clientFirstName,
+        clientLastName=client.clientLastName,
+        clientPhoneNumber=client.clientPhoneNumber,
+        clientEmail=client.clientEmail
+    )
+    
+    db.add(db_client)
+    db.commit()
+    db.refresh(db_client)
+    
+    return db_client

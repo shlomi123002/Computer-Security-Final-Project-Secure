@@ -43,3 +43,14 @@ def validate_password(cls, value):
 class UserLogin(BaseModel):
     username: str
     password: str
+
+
+class ClientCreate(BaseModel):
+    userName: str
+    clientFirstName: str
+    clientLastName: str
+    clientPhoneNumber: str
+    clientEmail: str
+
+    class Config:
+        orm_mode = True

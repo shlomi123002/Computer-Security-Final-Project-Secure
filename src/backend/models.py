@@ -7,3 +7,13 @@ class User(Base):
     userName = Column(String(200), unique=True, index=True, nullable=False)
     email = Column(String(200), unique=True, index=True, nullable=False)
     password = Column(String(200), nullable=False)
+
+class Client(Base):
+    __tablename__ = "clients"
+    userName = Column(String(200), primary_key=True, index=True, nullable=False)
+    clientFirstName = Column(String(200), index=True, nullable=False)
+    clientLastName = Column(String(200), index=True, nullable=False)
+    clientEmail = Column(String(200), index=True, nullable=False)
+    clientPhoneNumber = Column(String(200), index=True, nullable=False)
+
+   

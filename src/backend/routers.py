@@ -1,7 +1,7 @@
 from fastapi import APIRouter, HTTPException, Depends
 from sqlalchemy.orm import Session
-from schemas import UserCreate, UserLogin
-from crud import create_user, validate_user, get_user_by_id, update_password
+from schemas import ClientCreate,UserCreate, UserLogin
+from crud import create_user, validate_user, get_user_by_name, update_password,create_client
 from database import get_db
 from utils import send_recovery_code, verify_password
 from pydantic import BaseModel
@@ -37,7 +37,7 @@ class ResetPasswordRequest(BaseModel):
 
 @user_router.post("/forgot-password/")
 def forgot_password(request: ForgotPasswordRequest, db: Session = Depends(get_db)):
-    user = get_user_by_id(db, request.user_id)  # Change to use user_id
+    user = get_user_by_name(db, request.user_id)  # Change to use user_id
     if not user:
         raise HTTPException(status_code=404, detail="User ID not found")
     
@@ -52,7 +52,7 @@ def forgot_password(request: ForgotPasswordRequest, db: Session = Depends(get_db
 
 @user_router.post("/reset-password/")
 def reset_password(request: ResetPasswordRequest, db: Session = Depends(get_db)):
-    user = get_user_by_id(db, request.user_id)  # Change to use user_id
+    user = get_user_by_name(db, request.user_id)  # Change to use user_id
     if not user:
         raise HTTPException(status_code=404, detail="User ID not found")
     
@@ -65,14 +65,14 @@ def reset_password(request: ResetPasswordRequest, db: Session = Depends(get_db))
     return {"msg": "Password reset successful"}
 
 class PasswordChangeRequest(BaseModel):
-    user_id: int
+    user_name: str
     current_password: str
     new_password: str
 
 # Password change route
 @user_router.put("/change-password/") 
 async def change_password(request: PasswordChangeRequest, db: Session = Depends(get_db)):
-    user = get_user_by_id(db, request.user_id)
+    user = get_user_by_name(db, request.user_name)
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
 
@@ -86,3 +86,12 @@ async def change_password(request: PasswordChangeRequest, db: Session = Depends(
     db.commit()
 
     return {"msg": "Password updated successfully"}
+
+#add a client to the clients table
+@user_router.post("/Dashboard/")
+def add_client(client: ClientCreate, db: Session = Depends(get_db)):
+    try:
+        new_client = create_client(db, client)
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    return {"msg": "Client added successfully", "client": new_client}
