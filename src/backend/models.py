@@ -7,6 +7,7 @@ class User(Base):
     userName = Column(String(200), unique=True, index=True, nullable=False)
     email = Column(String(200), unique=True, index=True, nullable=False)
     password = Column(String(200), nullable=False)
+    salt = Column(String(200), nullable=True)
 
 class Client(Base):
     __tablename__ = "clients"

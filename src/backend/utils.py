@@ -1,8 +1,9 @@
 from passlib.context import CryptContext
 from passlib.utils import consteq
-from secrets import token_bytes
 import random
 import smtplib
+import hashlib
+import hmac
 from email.mime.text import MIMEText
 
 # Define CryptContext with pbkdf2_sha256
@@ -11,18 +12,14 @@ pwd_context = CryptContext(
     default="pbkdf2_sha256"
 )
 
-# Function to generate a random salt
-def generate_salt(length=16):
-    return token_bytes(length).hex()
-
 # Function to hash a password with salt
-def get_password_hash(password: str) -> str:
-    salt = generate_salt()
-    # Hash the password with the salt
-    hashed_password = pwd_context.hash(password + salt)
-    # Store the salt along with the hashed password
-    # return f"{salt}${hashed_password}"
-    return password
+
+# Password hashing function (synchronous)
+def get_password_hash(password: str, salt: str) -> str:
+    # Hash the password with the salt using SHA256
+    hashed_password = hmac.new(salt.encode(), password.encode(), hashlib.sha256).hexdigest()
+    # Return the salt along with the hashed password
+    return hashed_password
 
 # Function to verify a password
 # def verify_password(stored_password: str, provided_password: str) -> bool:

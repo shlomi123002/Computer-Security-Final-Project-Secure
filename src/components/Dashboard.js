@@ -118,7 +118,7 @@ const Dashboard = () => {
         </Box>
         <Box mt={2} textAlign="center">
           <Button color="secondary" onClick={handleLoginPage}>
-            Login Page
+            Log Out
           </Button>
         </Box>
       </Box>
