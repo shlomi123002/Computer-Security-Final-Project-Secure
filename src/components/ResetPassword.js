@@ -37,13 +37,14 @@ const ResetPassword = () => {
   const [error, setError] = useState('');
   const [message, setMessage] = useState('');
   const [passwordValidations, setPasswordValidations] = useState({
+    
     length: false,
     uppercase: false,
     specialChar: false,
     number: false,
   });
 
-  const email = location.state?.email;
+  const username = location.state?.username;
 
   const handlePasswordChange = (e) => {
     const value = e.target.value;
@@ -61,7 +62,7 @@ const ResetPassword = () => {
     e.preventDefault();
     try {
       const response = await axios.post('http://localhost:8000/reset-password/', {
-        user_email: email,
+        user_name : username,
         recovery_code: recoveryCode,
         new_password: newPassword,
       });

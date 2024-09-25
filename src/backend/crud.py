@@ -1,7 +1,7 @@
 from sqlalchemy.orm import Session
 from models import User
 from schemas import UserCreate
-from utils import get_password_hash, verify_password
+from utils import get_password_hash
 from sqlalchemy import text
 from models import Client
 from schemas import ClientCreate
@@ -14,18 +14,18 @@ def generate_salt(length=16):
 
 def create_user(db: Session, user: UserCreate):
     # Check if username is already registered
-    check_user_query = text("SELECT * FROM users WHERE userName = :username")
-    result = db.execute(check_user_query, {"username": user.username}).fetchone()
+    check_user_query = text(f"SELECT * FROM users WHERE userName = '{user.username}'")
+    result = db.execute(check_user_query).fetchone()
     
     if result:
         raise ValueError("Username already registered")
     
-    # Check if email is already registered
-    check_email_query = text("SELECT * FROM users WHERE email = :email")
-    result = db.execute(check_email_query, {"email": user.email}).fetchone()
+    # # Check if email is already registered
+    # check_email_query = text("SELECT * FROM users WHERE email = :email")
+    # result = db.execute(check_email_query, {"email": user.email}).fetchone()
     
-    if result:
-        raise ValueError("Email already registered")
+    # if result:
+    #     raise ValueError("Email already registered")
     
     # Insert the new user into the database
     insert_user_query = text("""
@@ -33,6 +33,7 @@ def create_user(db: Session, user: UserCreate):
         VALUES (:username, :email, :password, :salt)
     """)
     salt = generate_salt()
+    
     hashed_password = get_password_hash(user.password, salt)
     db.execute(insert_user_query, {
         "username": user.username,
@@ -55,8 +56,8 @@ def get_user(db: Session, username: str):
 
 def validate_user(db: Session, username: str, password: str):
     # Fetch the salt for the username
-    salt_query = text("SELECT salt FROM users WHERE userName = :username")
-    salt_result = db.execute(salt_query, {"username": username}).fetchone()
+    salt_query = text(f"SELECT salt FROM users WHERE userName = '{username}'")
+    salt_result = db.execute(salt_query).fetchone()
 
     if not salt_result:
         # User does not exist, return None or handle appropriately
@@ -78,17 +79,58 @@ def validate_user(db: Session, username: str, password: str):
 
 # sql injection -> admin' OR 1=1 #
 
+def verify_password(db: Session, current_password: str, user_name: str) -> bool:
 
-def get_user_by_name(db: Session, user_name: str):
-    return db.query(User).filter(User.userName == user_name).first()
+    salt_query = text(f"SELECT salt FROM users WHERE userName = '{user_name}'")
+    salt_result = db.execute(salt_query).fetchone()
 
-def get_user_by_email(db: Session, user_email: str):
-    return db.query(User).filter(User.email == user_email).first()
+    if not salt_result:
+        # User does not exist, return None or handle appropriately
+        return None
+    
+    password_query = text(f"SELECT password FROM users WHERE userName = '{user_name}'")
+    table_password = db.execute(password_query).fetchone()
 
-def update_password(db: Session, user: User, new_password: str):
-    hashed_password = get_password_hash(new_password)
-    user.password = hashed_password
-    user.recovery_code = None  # Clear recovery code after password reset
+    salt = salt_result[0]  # Extract the salt from the result tuple
+
+    current_password_after_hash = get_password_hash(current_password, salt)
+
+    if current_password_after_hash == table_password[0]:
+        return True
+    return False
+
+def get_user_by_name(db: Session, username: str):
+    get_user_query = text(f"SELECT * FROM users WHERE userName = '{username}' LIMIT 1;")
+    result = db.execute(get_user_query).fetchone()
+    return result
+
+# def get_user_by_email(db: Session, email: str):
+#     get_email_query = text(f"SELECT * FROM User WHERE email = '{email}' LIMIT 1;")
+#     result = db.execute(get_email_query).fetchone()
+#     return result
+
+def update_password(db: Session, username, new_password: str):
+
+    salt_query = text(f"SELECT salt FROM users WHERE userName = '{username}'")
+    salt_result = db.execute(salt_query).fetchone()
+
+    if not salt_result:
+        # User does not exist, return None or handle appropriately
+        return None
+
+    hashed_password = get_password_hash(new_password,salt_result[0])
+    
+    update_password_query = text("""
+    UPDATE users
+    SET password = :password
+    WHERE userName = :username
+""")
+
+    # Execute the update query with the new password and salt
+    db.execute(update_password_query, {
+        "password": hashed_password,
+        "username": username  
+    })
     db.commit()
 
 def create_client(db: Session, client: ClientCreate):

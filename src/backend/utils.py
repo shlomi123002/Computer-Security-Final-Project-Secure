@@ -29,11 +29,6 @@ def get_password_hash(password: str, salt: str) -> str:
 #     return pwd_context.verify(provided_password + salt, hashed_password)
 
 
-def verify_password(plain_password: str, database_password: str) -> bool:
-    if plain_password == database_password :
-        return True
-    return False
-
 def send_recovery_code(email: str):
     recovery_code = ''.join([str(random.randint(0, 9)) for _ in range(6)])
     

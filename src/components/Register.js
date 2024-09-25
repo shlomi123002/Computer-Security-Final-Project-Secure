@@ -57,7 +57,7 @@ const Register = () => {
         email: email,
         password: password,
       });
-      alert(`User ${response.data.username} registered successfully`);
+      alert(`User registered successfully`);
       navigate('/'); // Redirect to login page after successful registration
     } catch (error) {
       console.error("There was an error registering the user!", error);

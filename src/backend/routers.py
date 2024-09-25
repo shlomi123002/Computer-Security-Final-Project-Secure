@@ -1,10 +1,12 @@
 from fastapi import APIRouter, HTTPException, Depends
 from sqlalchemy.orm import Session
 from schemas import ClientCreate,UserCreate, UserLogin
-from crud import create_user, validate_user, get_user_by_name, update_password,create_client,get_user_by_email
+from crud import create_user, validate_user, update_password,create_client, verify_password
 from database import get_db
-from utils import send_recovery_code, verify_password
+from utils import send_recovery_code, get_password_hash
 from pydantic import BaseModel
+from sqlalchemy import text
+
 
 user_router = APIRouter()
 
@@ -28,43 +30,41 @@ def login_user(user: UserLogin, db: Session = Depends(get_db)):
         raise HTTPException(status_code=400, detail=str(e))
 
 class ForgotPasswordRequest(BaseModel):
-    user_email: str
+    user_name: str
 
 class ResetPasswordRequest(BaseModel):
-    user_email: str
+    user_name: str
     recovery_code: int
     new_password: str
 
-top_recovery_code = 0
+recovery_code = 0
 
 @user_router.post("/forgot-password/")
 def forgot_password(request: ForgotPasswordRequest, db: Session = Depends(get_db)):
-    global top_recovery_code
-    user = get_user_by_email(db, request.user_email) 
-    if not user:
-        raise HTTPException(status_code=404, detail="User ID not found")
     
+    get_email_query = text(f"SELECT email FROM users WHERE userName = '{request.user_name}' LIMIT 1;")
+    email = db.execute(get_email_query).fetchone()
+
+    if not email :
+        raise ValueError("Username not found")
+    
+    global recovery_code
     # Generate and send the recovery code
-    recovery_code = send_recovery_code(user.email)
-    
-    # Store the recovery code in the user object or databaseS
-    top_recovery_code = recovery_code
-    db.commit()
+    recovery_code = send_recovery_code(email[0])
     
     return {"msg": "Recovery code sent to your email"}
 
 @user_router.post("/reset-password/")
 def reset_password(request: ResetPasswordRequest, db: Session = Depends(get_db)):
-    user = get_user_by_email(db, request.user_email)  # Change to use user_id
-    if not user:
-        raise HTTPException(status_code=404, detail="User ID not found")
     
+    print("code : ",recovery_code)
+
     # Check if the provided recovery code matches the one stored
-    if int(top_recovery_code) != request.recovery_code:
+    if int(recovery_code) != request.recovery_code:
         raise HTTPException(status_code=400, detail="Invalid recovery code")
     
     # Update the password
-    update_password(db, user, request.new_password)
+    update_password(db, request.user_name, request.new_password)
     return {"msg": "Password reset successful"}
 
 class PasswordChangeRequest(BaseModel):
@@ -74,18 +74,36 @@ class PasswordChangeRequest(BaseModel):
 
 # Password change route
 @user_router.put("/change-password/") 
-async def change_password(request: PasswordChangeRequest, db: Session = Depends(get_db)):
-    user = get_user_by_name(db, request.user_name)
-    if not user:
-        raise HTTPException(status_code=404, detail="User not found")
-
+def change_password(user: PasswordChangeRequest, db: Session = Depends(get_db)):
+    
     # Step 1: Verify current password
-    if not verify_password(request.current_password, user.password):
+    if not verify_password(db, user.current_password, user.user_name):
         raise HTTPException(status_code=400, detail="Incorrect current password")
+    
+    salt_query = text(f"SELECT salt FROM users WHERE userName = '{user.user_name}'")
+    salt_result = db.execute(salt_query).fetchone()
+
+    if not salt_result:
+        # User does not exist, return None or handle appropriately
+        return None
+
+    salt = salt_result[0]
 
     # Step 2: Hash the new password and update the database
-    hashed_new_password = request.new_password
-    user.password = hashed_new_password
+    hashed_new_password = get_password_hash(user.new_password, salt)
+
+    update_password_query = text("""
+    UPDATE users
+    SET password = :password
+    WHERE userName = :username
+""")
+
+    # Execute the update query with the new password and salt
+    db.execute(update_password_query, {
+        "password": hashed_new_password,
+        "username": user.user_name  
+    })
+
     db.commit()
 
     return {"msg": "Password updated successfully"}

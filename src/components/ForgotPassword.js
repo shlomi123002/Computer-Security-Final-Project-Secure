@@ -25,7 +25,7 @@ const ForgotPasswordWrapper = styled(Paper)({
 });
 
 const ForgotPassword = () => {
-  const [email, setEmail] = useState('');
+  const [username, setUsername] = useState('');
   const [error, setError] = useState('');
   const [message, setMessage] = useState('');
   const navigate = useNavigate();
@@ -36,16 +36,16 @@ const ForgotPassword = () => {
     e.preventDefault();
     try {
       const response = await axios.post('http://localhost:8000/forgot-password', {
-        user_email: email,
+        user_name: username,
       });
       setMessage(response.data.msg);
       // Redirect to reset password page after recovery code is sent
-      navigate('/reset-password', { state: { email: email } });
+      navigate('/reset-password', { state: { username: username } });
     } catch (error) {
       if (error.response && error.response.status === 404) {
         setError('Email not found');
       } else {
-        setError('An error occurred while sending the recovery code');
+        setError('User not found');
       }
     }
   };
@@ -53,14 +53,17 @@ const ForgotPassword = () => {
   return (
     <FullScreenContainer>
       <ForgotPasswordWrapper elevation={6}>
-        <Typography variant="h5" align="center" gutterBottom>
+        <Typography variant="h4" align="center" gutterBottom>
           Forgot Password
+        </Typography>
+        <Typography variant="h6" align="left" gutterBottom>
+          Enter your username to receive an email to reset your password.
         </Typography>
         <form onSubmit={handleSubmit}>
           <TextField
-            label="Email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            label="username"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
             fullWidth
             margin="normal"
             required
