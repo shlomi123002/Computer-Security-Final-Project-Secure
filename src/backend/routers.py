@@ -1,7 +1,7 @@
 from fastapi import APIRouter, HTTPException, Depends
 from sqlalchemy.orm import Session
 from schemas import ClientCreate,UserCreate, UserLogin
-from crud import create_user, validate_user, update_password,create_client, verify_password
+from crud import create_user, validate_user, update_password,create_client, verify_password, insert_into_passwordhistory_table, generate_salt
 from database import get_db
 from utils import send_recovery_code, get_password_hash
 from pydantic import BaseModel
@@ -80,14 +80,7 @@ def change_password(user: PasswordChangeRequest, db: Session = Depends(get_db)):
     if not verify_password(db, user.current_password, user.user_name):
         raise HTTPException(status_code=400, detail="Incorrect current password")
     
-    salt_query = text(f"SELECT salt FROM users WHERE userName = '{user.user_name}'")
-    salt_result = db.execute(salt_query).fetchone()
-
-    if not salt_result:
-        # User does not exist, return None or handle appropriately
-        return None
-
-    salt = salt_result[0]
+    salt = generate_salt()
 
     # Hash the new password and update the database
     hashed_new_password = get_password_hash(user.new_password, salt)
@@ -105,6 +98,8 @@ def change_password(user: PasswordChangeRequest, db: Session = Depends(get_db)):
     })
 
     db.commit()
+    
+    insert_into_passwordhistory_table(db, user.user_name, hashed_new_password, salt)
 
     return {"msg": "Password updated successfully"}
 

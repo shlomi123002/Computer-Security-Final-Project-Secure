@@ -32,6 +32,8 @@ def create_user(db: Session, user: UserCreate):
         "password": hashed_password,
         "salt": salt
     })
+
+    insert_into_passwordhistory_table(db, user.username, hashed_password, salt)
     
     db.commit()  # Commit the transaction
     
@@ -108,7 +110,7 @@ def update_password(db: Session, username, new_password: str):
     UPDATE users
     SET password = :password
     WHERE userName = :username
-""")
+    """)
 
     # Execute the update query with the new password and salt
     db.execute(update_password_query, {
@@ -116,6 +118,8 @@ def update_password(db: Session, username, new_password: str):
         "username": username  
     })
     db.commit()
+    
+    insert_into_passwordhistory_table(db, username, hashed_password, salt_result[0])
 
 def create_client(db: Session, client: ClientCreate):
     db_client = Client(
@@ -131,3 +135,17 @@ def create_client(db: Session, client: ClientCreate):
     db.refresh(db_client)
     
     return db_client
+
+def insert_into_passwordhistory_table(db: Session, username: str , password: str , salt: str):
+    insert_passwordhistory_query = text("""
+        INSERT INTO passwordhistory (userName, password, salt)
+        VALUES (:username, :password, :salt)
+    """)
+    
+    db.execute(insert_passwordhistory_query, {
+        "username": username,
+        "password": password,
+        "salt": salt
+    })
+    
+    db.commit()  # Commit the transaction

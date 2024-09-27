@@ -16,5 +16,12 @@ class Client(Base):
     clientLastName = Column(String(200), index=True, nullable=False)
     clientEmail = Column(String(200), index=True, nullable=False)
     clientPhoneNumber = Column(String(200), index=True, nullable=False)
+    
+class PasswordHistory(Base):
+    __tablename__ = "passwordhistory"
+    userName = Column(String(200), primary_key=True, index=True, nullable=False)
+    password = Column(String(200), nullable=False)
+    salt = Column(String(200), nullable=True)
+    
 
    
