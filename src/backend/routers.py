@@ -18,6 +18,7 @@ def register_user(user: UserCreate, db: Session = Depends(get_db)):
         raise HTTPException(status_code=400, detail=str(e))
     return result
 
+# sql injection for login page -> admin' OR 1=1 #
 @user_router.post("/login/")
 def login_user(user: UserLogin, db: Session = Depends(get_db)):
     try:
@@ -31,11 +32,6 @@ def login_user(user: UserLogin, db: Session = Depends(get_db)):
 
 class ForgotPasswordRequest(BaseModel):
     user_name: str
-
-class ResetPasswordRequest(BaseModel):
-    user_name: str
-    recovery_code: int
-    new_password: str
 
 recovery_code = 0
 
@@ -53,6 +49,11 @@ def forgot_password(request: ForgotPasswordRequest, db: Session = Depends(get_db
     recovery_code = send_recovery_code(email[0])
     
     return {"msg": "Recovery code sent to your email"}
+
+class ResetPasswordRequest(BaseModel):
+    user_name: str
+    recovery_code: int
+    new_password: str
 
 @user_router.post("/reset-password/")
 def reset_password(request: ResetPasswordRequest, db: Session = Depends(get_db)):
@@ -72,11 +73,10 @@ class PasswordChangeRequest(BaseModel):
     current_password: str
     new_password: str
 
-# Password change route
 @user_router.put("/change-password/") 
 def change_password(user: PasswordChangeRequest, db: Session = Depends(get_db)):
     
-    # Step 1: Verify current password
+    # Verify current password
     if not verify_password(db, user.current_password, user.user_name):
         raise HTTPException(status_code=400, detail="Incorrect current password")
     
@@ -89,7 +89,7 @@ def change_password(user: PasswordChangeRequest, db: Session = Depends(get_db)):
 
     salt = salt_result[0]
 
-    # Step 2: Hash the new password and update the database
+    # Hash the new password and update the database
     hashed_new_password = get_password_hash(user.new_password, salt)
 
     update_password_query = text("""

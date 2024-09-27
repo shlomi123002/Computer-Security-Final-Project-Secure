@@ -1,12 +1,10 @@
 from sqlalchemy.orm import Session
-from models import User
 from schemas import UserCreate
 from utils import get_password_hash
 from sqlalchemy import text
 from models import Client
 from schemas import ClientCreate
 from secrets import token_bytes
-import hashlib
 
 # Function to generate a random salt
 def generate_salt(length=16):
@@ -19,13 +17,6 @@ def create_user(db: Session, user: UserCreate):
     
     if result:
         raise ValueError("Username already registered")
-    
-    # # Check if email is already registered
-    # check_email_query = text("SELECT * FROM users WHERE email = :email")
-    # result = db.execute(check_email_query, {"email": user.email}).fetchone()
-    
-    # if result:
-    #     raise ValueError("Email already registered")
     
     # Insert the new user into the database
     insert_user_query = text("""
@@ -77,8 +68,6 @@ def validate_user(db: Session, username: str, password: str):
     else:
         raise ValueError("Invalid username or password")
 
-# sql injection -> admin' OR 1=1 #
-
 def verify_password(db: Session, current_password: str, user_name: str) -> bool:
 
     salt_query = text(f"SELECT salt FROM users WHERE userName = '{user_name}'")
@@ -103,11 +92,6 @@ def get_user_by_name(db: Session, username: str):
     get_user_query = text(f"SELECT * FROM users WHERE userName = '{username}' LIMIT 1;")
     result = db.execute(get_user_query).fetchone()
     return result
-
-# def get_user_by_email(db: Session, email: str):
-#     get_email_query = text(f"SELECT * FROM User WHERE email = '{email}' LIMIT 1;")
-#     result = db.execute(get_email_query).fetchone()
-#     return result
 
 def update_password(db: Session, username, new_password: str):
 

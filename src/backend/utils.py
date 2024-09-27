@@ -6,6 +6,7 @@ import hashlib
 import hmac
 from email.mime.text import MIMEText
 
+
 # Define CryptContext with pbkdf2_sha256
 pwd_context = CryptContext(
     schemes=["pbkdf2_sha256"],
@@ -30,8 +31,15 @@ def get_password_hash(password: str, salt: str) -> str:
 
 
 def send_recovery_code(email: str):
-    recovery_code = ''.join([str(random.randint(0, 9)) for _ in range(6)])
-    
+    random_code = ''.join([str(random.randint(0, 9)) for _ in range(6)])
+
+    # יצירת Hash באמצעות SHA-1
+    recovery_code = hashlib.sha1(random_code.encode()).hexdigest()
+
+    # הצגת התוצאה
+    print(f"Random Code: {random_code}")
+    print(f"SHA-1 Hash: {recovery_code}")
+
     # Create the email message
     msg = MIMEText(f"Your recovery code is: {recovery_code}")
     msg['Subject'] = 'Password Recovery Code'

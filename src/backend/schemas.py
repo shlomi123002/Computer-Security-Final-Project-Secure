@@ -2,7 +2,6 @@ from pydantic import BaseModel, EmailStr, validator
 import re
 import json
 from pathlib import Path
-import os
 
 
 class UserCreate(BaseModel):
