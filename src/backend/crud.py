@@ -97,29 +97,30 @@ def get_user_by_name(db: Session, username: str):
 
 def update_password(db: Session, username, new_password: str):
 
-    salt_query = text(f"SELECT salt FROM users WHERE userName = '{username}'")
-    salt_result = db.execute(salt_query).fetchone()
+    salt = generate_salt()
 
-    if not salt_result:
-        # User does not exist, return None or handle appropriately
-        return None
+    hashed_password = get_password_hash(new_password,salt)
 
-    hashed_password = get_password_hash(new_password,salt_result[0])
+    if not check_password_history(db, username, new_password) :
+       return False
+        
     
     update_password_query = text("""
     UPDATE users
-    SET password = :password
+    SET password = :password , salt = :salt
     WHERE userName = :username
     """)
 
     # Execute the update query with the new password and salt
     db.execute(update_password_query, {
         "password": hashed_password,
-        "username": username  
+        "salt": salt,
+        "username": username 
     })
     db.commit()
-    
-    insert_into_passwordhistory_table(db, username, hashed_password, salt_result[0])
+
+    insert_into_passwordhistory_table(db, username, hashed_password, salt)
+    return True
 
 def create_client(db: Session, client: ClientCreate):
     db_client = Client(
@@ -149,3 +150,43 @@ def insert_into_passwordhistory_table(db: Session, username: str , password: str
     })
     
     db.commit()  # Commit the transaction
+
+    # Remove the oldest password if there are more than 3 passwords stored
+    # clean_up_query = text("""
+    #     DELETE FROM passwordhistory
+    #     WHERE username = :username
+    #     AND id NOT IN (
+    #         SELECT id FROM passwordhistory
+    #         WHERE username = :username
+    #         ORDER BY id DESC
+    #         LIMIT 3
+    #     )
+    # """)
+    
+    # db.execute(clean_up_query, {"username": username})
+    # db.commit()
+
+def check_password_history(db: Session, username: str, new_password: str) -> bool:
+    # Get the user's last 3 password hashes from password history
+    password_history_query = text("""
+        SELECT password, salt FROM passwordhistory
+        WHERE username = :username
+        ORDER BY id DESC
+        LIMIT 3
+    """)
+    
+    # Fetch last three passwords from the password history
+    password_history = db.execute(password_history_query, {"username": username}).fetchall()
+
+    # Check if the new password matches any of the stored passwords
+    for record in password_history:
+        stored_hashed_password = record['password']
+        stored_salt = record['salt']
+        new_password_hashed = get_password_hash(new_password, stored_salt)
+        # Check if hashed new password matches any of the stored ones
+        if stored_hashed_password == new_password_hashed :
+            print("stored_hashed_password: ",stored_hashed_password)
+            print("new_password_hashed: ",new_password_hashed)
+            return False
+    
+    return True  # The new password is valid and hasn't been used before

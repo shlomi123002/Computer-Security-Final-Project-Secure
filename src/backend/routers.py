@@ -80,27 +80,9 @@ def change_password(user: PasswordChangeRequest, db: Session = Depends(get_db)):
     if not verify_password(db, user.current_password, user.user_name):
         raise HTTPException(status_code=400, detail="Incorrect current password")
     
-    salt = generate_salt()
-
-    # Hash the new password and update the database
-    hashed_new_password = get_password_hash(user.new_password, salt)
-
-    update_password_query = text("""
-    UPDATE users
-    SET password = :password
-    WHERE userName = :username
-""")
-
-    # Execute the update query with the new password and salt
-    db.execute(update_password_query, {
-        "password": hashed_new_password,
-        "username": user.user_name  
-    })
-
-    db.commit()
+    if not update_password(db, user.user_name, user.new_password) :
+         raise HTTPException(status_code=400, detail="The new password cannot be one of the last 3 used passwords.")
     
-    insert_into_passwordhistory_table(db, user.user_name, hashed_new_password, salt)
-
     return {"msg": "Password updated successfully"}
 
 #add a client to the clients table
