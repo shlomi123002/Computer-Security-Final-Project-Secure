@@ -1,7 +1,7 @@
 from fastapi import APIRouter, HTTPException, Depends
 from sqlalchemy.orm import Session
 from schemas import ClientCreate,UserCreate, UserLogin
-from crud import create_user, validate_user, update_password,create_client, verify_password, insert_into_passwordhistory_table, generate_salt
+from crud import create_user, validate_user, update_password,create_client, verify_password, insert_into_passwordhistory_table, generate_salt, number_of_password_history
 from database import get_db
 from utils import send_recovery_code, get_password_hash
 from pydantic import BaseModel
@@ -80,8 +80,10 @@ def change_password(user: PasswordChangeRequest, db: Session = Depends(get_db)):
     if not verify_password(db, user.current_password, user.user_name):
         raise HTTPException(status_code=400, detail="Incorrect current password")
     
+    number_of_history = number_of_password_history()
+
     if not update_password(db, user.user_name, user.new_password) :
-         raise HTTPException(status_code=400, detail="The new password cannot be one of the last 3 used passwords.")
+         raise HTTPException(status_code=400, detail=f"The new password cannot be one of the last '{number_of_history}' used passwords.")
     
     return {"msg": "Password updated successfully"}
 

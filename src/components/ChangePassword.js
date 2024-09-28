@@ -62,14 +62,6 @@ const PasswordChange = () => {
     }
   };
 
-  const handleBackToDashboard = () => {
-    navigate('/dashboard'); // Navigate to dashboard
-  };
-
-  const handleBackToLogin = () => {
-    navigate('/'); // Navigate to login page
-  };
-
   return (
     <ChangePasswordWrapper elevation={6}>
       <Typography variant="h5" align="center" gutterBottom>
@@ -117,12 +109,12 @@ const PasswordChange = () => {
             Change Password
           </Button>
           <Box mt={2} textAlign="center">
-            <Button color="secondary" onClick={handleBackToDashboard}>
+            <Button onClick={() => navigate('/dashboard')} color="secondary">
               Back to Dashboard
             </Button>
           </Box>
           <Box mt={2} textAlign="center">
-            <Button color="secondary" onClick={handleBackToLogin}>
+            <Button onClick={() => navigate('/')} color="secondary">
               Back to Login
             </Button>
           </Box>

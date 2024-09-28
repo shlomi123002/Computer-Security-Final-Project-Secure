@@ -4,6 +4,7 @@ from utils import get_password_hash
 from sqlalchemy import text
 from models import Client
 from schemas import ClientCreate
+import json
 from secrets import token_bytes
 
 # Function to generate a random salt
@@ -151,29 +152,34 @@ def insert_into_passwordhistory_table(db: Session, username: str , password: str
     
     db.commit()  # Commit the transaction
 
-    # Remove the oldest password if there are more than 3 passwords stored
-    # clean_up_query = text("""
+    #Remove the oldest password if there are more than number that i choose in config passwords stored
+
+    # number_of_history = number_of_password_history()
+
+    # clean_up_query = text(f"""
     #     DELETE FROM passwordhistory
-    #     WHERE username = :username
+    #     WHERE username = '{username}'
     #     AND id NOT IN (
     #         SELECT id FROM passwordhistory
-    #         WHERE username = :username
+    #         WHERE username = '{username}'
     #         ORDER BY id DESC
-    #         LIMIT 3
+    #         LIMIT {number_of_history}
     #     )
     # """)
     
-    # db.execute(clean_up_query, {"username": username})
+    # db.execute(clean_up_query)
     # db.commit()
 
 def check_password_history(db: Session, username: str, new_password: str) -> bool:
-    # Get the user's last 3 password hashes from password history
-    password_history_query = text("""
-        SELECT password, salt FROM passwordhistory
-        WHERE username = :username
-        ORDER BY id DESC
-        LIMIT 3
-    """)
+    # Get the user's last passwords hashes from password history
+    number_of_history = number_of_password_history()
+
+    password_history_query = text(f"""
+    SELECT password, salt FROM passwordhistory
+    WHERE username = :username
+    ORDER BY id DESC
+    LIMIT {number_of_history}
+""")
     
     # Fetch last three passwords from the password history
     password_history = db.execute(password_history_query, {"username": username}).fetchall()
@@ -185,8 +191,16 @@ def check_password_history(db: Session, username: str, new_password: str) -> boo
         new_password_hashed = get_password_hash(new_password, stored_salt)
         # Check if hashed new password matches any of the stored ones
         if stored_hashed_password == new_password_hashed :
-            print("stored_hashed_password: ",stored_hashed_password)
-            print("new_password_hashed: ",new_password_hashed)
             return False
     
     return True  # The new password is valid and hasn't been used before
+
+def number_of_password_history() -> int :
+    # Load the config.json file
+    with open('config.json', 'r') as file:
+        config = json.load(file)
+
+    # Access the "password_history" value
+    password_history_value = config['password_history']
+
+    return password_history_value
