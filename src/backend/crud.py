@@ -6,6 +6,7 @@ from models import Client
 from schemas import ClientCreate
 import json
 from secrets import token_bytes
+from datetime import datetime, timedelta
 
 # Function to generate a random salt
 def generate_salt(length=16):
@@ -48,28 +49,76 @@ def get_user(db: Session, username: str):
     
     return result  # This returns a Row object
 
+BLOCK_DURATION = 90  # Block time in seconds
+MAX_ATTEMPTS = 3  # Maximum failed attempts
+
 def validate_user(db: Session, username: str, password: str):
+    # Check if the user is blocked
+    block_query = text("SELECT failed_attempts, block_until FROM failed_logins WHERE username = :username")
+    block_result = db.execute(block_query, {"username": username}).fetchone()
+
+    if block_result:
+        failed_attempts, block_until = block_result
+
+        # If user is currently blocked
+        if block_until and datetime.now() < block_until:
+            remaining_time = (block_until - datetime.now()).total_seconds()
+            raise ValueError(f"User is blocked. Please try again in {int(remaining_time)} seconds.")
+
+        # Reset failed attempts after successful login or block expiration
+        if block_until and datetime.now() >= block_until:
+            reset_attempts_query = text("UPDATE failed_logins SET failed_attempts = 0, block_until = NULL WHERE username = :username")
+            db.execute(reset_attempts_query, {"username": username})
+            db.commit()
+
     # Fetch the salt for the username
-    salt_query = text(f"SELECT salt FROM users WHERE userName = '{username}'")
-    salt_result = db.execute(salt_query).fetchone()
+    salt_query = text("SELECT salt FROM users WHERE userName = :username")
+    salt_result = db.execute(salt_query, {"username": username}).fetchone()
 
     if not salt_result:
-        # User does not exist, return None or handle appropriately
-        return None
+        return None  # User does not exist
 
-    salt = salt_result[0]  # Extract the salt from the result tuple
+    salt = salt_result[0]
 
     # Hash the password with the salt
-    hashed_password = get_password_hash(password,salt)
+    hashed_password = get_password_hash(password, salt)
 
     # Check if the username and hashed password match a user
-    query = text(f"SELECT * FROM users WHERE userName = '{username}' AND password = '{hashed_password}' LIMIT 1")
-    result = db.execute(query).fetchone()
+    query = text("SELECT * FROM users WHERE userName = :username AND password = :hashed_password LIMIT 1")
+    result = db.execute(query, {"username": username, "hashed_password": hashed_password}).fetchone()
 
     if result:
+        # Reset failed attempts on successful login
+        reset_attempts_query = text("DELETE FROM failed_logins WHERE username = :username")
+        db.execute(reset_attempts_query, {"username": username})
+        db.commit()
         return True  # User is validated
     else:
+        # Increment failed attempts and block the user if necessary
+        if block_result:
+            failed_attempts += 1
+        else:
+            failed_attempts = 1
+
+        if failed_attempts >= MAX_ATTEMPTS:
+            block_until = datetime.now() + timedelta(seconds=BLOCK_DURATION)
+            block_query = text("""
+                INSERT INTO failed_logins (username, failed_attempts, block_until)
+                VALUES (:username, :failed_attempts, :block_until)
+                ON DUPLICATE KEY UPDATE failed_attempts = :failed_attempts, block_until = :block_until
+            """)
+            db.execute(block_query, {"username": username, "failed_attempts": failed_attempts, "block_until": block_until})
+        else:
+            block_query = text("""
+                INSERT INTO failed_logins (username, failed_attempts)
+                VALUES (:username, :failed_attempts)
+                ON DUPLICATE KEY UPDATE failed_attempts = :failed_attempts
+            """)
+            db.execute(block_query, {"username": username, "failed_attempts": failed_attempts})
+
+        db.commit()
         raise ValueError("Invalid username or password")
+
 
 def verify_password(db: Session, current_password: str, user_name: str) -> bool:
 
