@@ -1,9 +1,8 @@
 import React, { useState } from 'react';
-import { TextField, Button, Box, Typography, Paper } from '@mui/material';
+import { TextField, Button, Box, Typography, Paper, MenuItem, Select, InputLabel, FormControl } from '@mui/material';
 import { styled } from '@mui/system';
 import { useNavigate, useLocation } from 'react-router-dom';
 import axios from 'axios';
-
 
 const DashboardWrapper = styled(Paper)({
   padding: '40px',
@@ -17,9 +16,17 @@ const Dashboard = () => {
   const [clientLastName, setLastName] = useState('');
   const [clientPhoneNumber, setPhoneNumber] = useState('');
   const [clientEmail, setEmail] = useState('');
-  const navigate = useNavigate();  // Initialize useNavigate
-  const {state} = useLocation();
+  const [selectedPackage, setSelectedPackage] = useState('');
+  const navigate = useNavigate();  
+  const { state } = useLocation();
   const { username } = state;
+
+  // Define the available packages
+  const packages = [
+    { name: 'Basic', speed: '50 Mbps', data: '200GB', price: '$20' },
+    { name: 'Normal', speed: '200 Mbps', data: '500GB', price: '$30' },
+    { name: 'Premium', speed: '400 Mbps', data: '1000GB', price: '$40' },
+  ];
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -30,6 +37,7 @@ const Dashboard = () => {
       clientLastName,
       clientPhoneNumber,
       clientEmail,
+      selectedPackage, // Include the selected package
     };
 
     try {
@@ -41,11 +49,11 @@ const Dashboard = () => {
     
       if (response.status === 200) {
         alert('Client added successfully');
-        // Clear the form fields after successful submission
         setFirstName('');
         setLastName('');
         setPhoneNumber('');
         setEmail('');
+        setSelectedPackage('');
       } else {
         alert('Failed to add client');
       }
@@ -54,6 +62,10 @@ const Dashboard = () => {
       alert('An error occurred. Please try again later.');
     }
   }
+
+  const handleViewClients = () => {
+    navigate('/client-table');
+  };
 
   const handleChangePassword = () => {
     navigate('/change-password', { state: { username: username } });
@@ -101,12 +113,35 @@ const Dashboard = () => {
           margin="normal"
           required
         />
+
+        <FormControl fullWidth margin="normal" required>
+          <InputLabel>Select Package</InputLabel>
+          <Select
+            value={selectedPackage}
+            onChange={(e) => setSelectedPackage(e.target.value)}
+            label="Select Package"
+          >
+            {packages.map((pkg) => (
+              <MenuItem key={pkg.name} value={pkg.name}>
+                {pkg.name} - {pkg.speed}, {pkg.data}, {pkg.price}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
+
         <Box mt={3}>
           <Button type="submit" variant="contained" color="primary" fullWidth>
             Add Client
           </Button>
         </Box>
       </form>
+
+      <Box mt={2} textAlign="center">
+        <Button onClick={handleViewClients} variant="contained" color="inherit" fullWidth>
+          View All Clients
+        </Button>
+      </Box>
+
       <Box mt={2}>
         <Typography variant="body1">
           Recently added client: {clientFirstName} {clientLastName}

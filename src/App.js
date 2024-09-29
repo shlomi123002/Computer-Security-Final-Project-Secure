@@ -6,6 +6,7 @@ import ForgotPassword from './components/ForgotPassword';
 import Login from './components/Login';
 import Dashboard from './components/Dashboard';
 import ChangePassword from './components/ChangePassword';
+import ClientTable from './components/ClientTable';
 
 
 function App() {
@@ -18,6 +19,7 @@ function App() {
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/change-password" element={<ChangePassword />} />
         <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/client-table" element={<ClientTable />} />
         
       </Routes>
     </Router>

@@ -91,7 +91,43 @@ def change_password(user: PasswordChangeRequest, db: Session = Depends(get_db)):
 @user_router.post("/Dashboard/")
 def add_client(client: ClientCreate, db: Session = Depends(get_db)):
     try:
-        new_client = create_client(db, client)
+        create_client(db, client)
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
-    return {"msg": "Client added successfully", "client": new_client}
+    return {"msg": "Client added successfully"}
+
+@user_router.get("/client-table")
+def get_clients(db: Session = Depends(get_db)):
+    try:
+        # Raw SQL query to fetch all clients
+        query = text("SELECT * FROM clients")
+
+        # Execute the query
+        result = db.execute(query)
+
+        # Fetch all rows from the result
+        clients = result.fetchall()  # Use fetchall() to get all results
+
+        print("Fetched client list:", clients)  # Check what clients contains
+
+        # If no clients are found, raise an HTTPException
+        if not clients:
+            raise HTTPException(status_code=404, detail="No clients found")
+
+        # Convert the rows to a list of dictionaries
+        client_list = []
+        for row in clients:
+            client_list.append({
+                "clientFirstName": row["clientFirstName"],
+                "clientLastName": row["clientLastName"],
+                "clientEmail": row["clientEmail"],
+                "clientPhoneNumber": row["clientPhoneNumber"],
+                #"selectedPackage":   # Include any additional fields as needed
+            })
+
+        return client_list
+    
+    except Exception as e:
+        # Log the error and raise a generic HTTP exception
+        print("Error fetching clients:", str(e))
+        raise HTTPException(status_code=500, detail="Internal Server Error")

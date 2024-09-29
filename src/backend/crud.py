@@ -173,19 +173,70 @@ def update_password(db: Session, username, new_password: str):
     return True
 
 def create_client(db: Session, client: ClientCreate):
-    db_client = Client(
-        userName=client.userName,
-        clientFirstName=client.clientFirstName,
-        clientLastName=client.clientLastName,
-        clientPhoneNumber=client.clientPhoneNumber,
-        clientEmail=client.clientEmail
-    )
-    
-    db.add(db_client)
+
+    client_query = text("""
+            INSERT INTO clients (clientFirstName, clientLastName, clientEmail , clientPhoneNumber)
+            VALUES (:clientFirstName, :clientLastName , :clientEmail , :clientPhoneNumber)
+        """)
+    db.execute(client_query, {"clientFirstName": client.clientFirstName, "clientLastName": client.clientLastName, "clientEmail": client.clientEmail, "clientPhoneNumber": client.clientPhoneNumber})
+
     db.commit()
-    db.refresh(db_client)
+
+    clientID_query = text("""
+    SELECT clientID 
+    FROM clients 
+    WHERE clientFirstName = :clientFirstName 
+    AND clientLastName = :clientLastName 
+    AND clientEmail = :clientEmail 
+    AND clientPhoneNumber = :clientPhoneNumber
+    """)
+    # Execute the query and fetch the result
+    result = db.execute(clientID_query, {
+        "clientFirstName": client.clientFirstName,
+        "clientLastName": client.clientLastName,
+        "clientEmail": client.clientEmail,
+        "clientPhoneNumber": client.clientPhoneNumber
+    }).fetchone()  # Fetch a single result
+
+# Access the clientID from the result, if a row was found
+    clientID = result['clientID']
+
+    print("ClientID :",clientID)
+
+    insert_into_internet_package(db,client.selectedPackage , clientID)
     
-    return db_client
+    return {"message": "Client created successfully"}
+
+def insert_into_internet_package (db: Session , package :str ,clientID :str) :
+
+    client_id = clientID
+
+    if package == "Basic" :
+        name = "Basic"
+        speed = "50 Mbps"
+        data_limit = "200GB"
+        price = "20$"
+
+    if package == "Normal" :
+        name = "Normal"
+        speed = "200 Mbps"
+        data_limit = "500GB"
+        price = "30$"
+
+    if package == "Premium" :
+        name = "Premium"
+        speed = "400 Mbps"
+        data_limit = "1000GB"
+        price = "40$"
+
+    client_query = text("""
+            INSERT INTO internet_packages (client_id, name, speed , data_limit , price)
+            VALUES (:client_id, :name , :speed , :data_limit , :price)
+        """)
+    db.execute(client_query, {"client_id": client_id, "name": name, "speed": speed, "data_limit": data_limit , "price": price})
+
+    db.commit()
+
 
 def insert_into_passwordhistory_table(db: Session, username: str , password: str , salt: str):
     insert_passwordhistory_query = text("""
