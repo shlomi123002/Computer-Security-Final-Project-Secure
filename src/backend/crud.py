@@ -50,12 +50,12 @@ def get_user(db: Session, username: str):
     return result  # This returns a Row object
 
 BLOCK_DURATION = 90  # Block time in seconds
-MAX_ATTEMPTS = 3  # Maximum failed attempts
+MAX_ATTEMPTS = 2  # Maximum failed attempts
 
 def validate_user(db: Session, username: str, password: str):
     # Check if the user is blocked
-    block_query = text("SELECT failed_attempts, block_until FROM failed_logins WHERE username = :username")
-    block_result = db.execute(block_query, {"username": username}).fetchone()
+    block_query = text(f"SELECT failed_attempts, block_until FROM failed_logins WHERE username = '{username}'")
+    block_result = db.execute(block_query).fetchone()
 
     if block_result:
         failed_attempts, block_until = block_result
@@ -67,13 +67,13 @@ def validate_user(db: Session, username: str, password: str):
 
         # Reset failed attempts after successful login or block expiration
         if block_until and datetime.now() >= block_until:
-            reset_attempts_query = text("UPDATE failed_logins SET failed_attempts = 0, block_until = NULL WHERE username = :username")
-            db.execute(reset_attempts_query, {"username": username})
+            reset_attempts_query = text(f"UPDATE failed_logins SET failed_attempts = 0, block_until = NULL WHERE username = '{username}'")
+            db.execute(reset_attempts_query)
             db.commit()
 
     # Fetch the salt for the username
-    salt_query = text("SELECT salt FROM users WHERE userName = :username")
-    salt_result = db.execute(salt_query, {"username": username}).fetchone()
+    salt_query = text(f"SELECT salt FROM users WHERE userName = '{username}'")
+    salt_result = db.execute(salt_query).fetchone()
 
     if not salt_result:
         return None  # User does not exist
@@ -84,13 +84,13 @@ def validate_user(db: Session, username: str, password: str):
     hashed_password = get_password_hash(password, salt)
 
     # Check if the username and hashed password match a user
-    query = text("SELECT * FROM users WHERE userName = :username AND password = :hashed_password LIMIT 1")
-    result = db.execute(query, {"username": username, "hashed_password": hashed_password}).fetchone()
+    query = text(f"SELECT * FROM users WHERE userName = '{username}' AND password = '{hashed_password}' LIMIT 1")
+    result = db.execute(query).fetchone()
 
     if result:
         # Reset failed attempts on successful login
-        reset_attempts_query = text("DELETE FROM failed_logins WHERE username = :username")
-        db.execute(reset_attempts_query, {"username": username})
+        reset_attempts_query = text(f"DELETE FROM failed_logins WHERE username = '{username}'")
+        db.execute(reset_attempts_query)
         db.commit()
         return True  # User is validated
     else:
@@ -201,11 +201,34 @@ def create_client(db: Session, client: ClientCreate):
 # Access the clientID from the result, if a row was found
     clientID = result['clientID']
 
-    print("ClientID :",clientID)
-
     insert_into_internet_package(db,client.selectedPackage , clientID)
+
+    print("Sector : " ,client.selectedSector )
+
+    insert_into_sectors(db,client.selectedSector ,clientID)
     
     return {"message": "Client created successfully"}
+
+def insert_into_sectors(db: Session , sector :str ,client_id :str) : 
+
+    if sector == "Private customer" :
+        name = "Private customer"
+
+    if sector == "Small Business" : 
+        name = "Small Business"
+
+    if sector == "Corporates" :
+        name = "Corporates"
+
+    client_query = text("""
+            INSERT INTO sectors (name, client_id)
+            VALUES ( :name , :client_id)
+        """)
+    db.execute(client_query, {"name": name, "client_id": client_id})
+
+    db.commit()
+
+
 
 def insert_into_internet_package (db: Session , package :str ,clientID :str) :
 
@@ -254,21 +277,23 @@ def insert_into_passwordhistory_table(db: Session, username: str , password: str
 
     #Remove the oldest password if there are more than number that i choose in config passwords stored
 
-    # number_of_history = number_of_password_history()
+    number_of_history = number_of_password_history()
 
-    # clean_up_query = text(f"""
-    #     DELETE FROM passwordhistory
-    #     WHERE username = '{username}'
-    #     AND id NOT IN (
-    #         SELECT id FROM passwordhistory
-    #         WHERE username = '{username}'
-    #         ORDER BY id DESC
-    #         LIMIT {number_of_history}
-    #     )
-    # """)
+    clean_up_query = text(f"""
+    DELETE ph FROM passwordhistory ph
+    LEFT JOIN (
+        SELECT id FROM passwordhistory
+        WHERE username = '{username}'
+        ORDER BY id DESC
+        LIMIT {int(number_of_history)}
+    ) AS keep_rows ON ph.id = keep_rows.id
+    WHERE ph.username = '{username}'
+    AND keep_rows.id IS NULL
+""")
+
     
-    # db.execute(clean_up_query)
-    # db.commit()
+    db.execute(clean_up_query)
+    db.commit()
 
 def check_password_history(db: Session, username: str, new_password: str) -> bool:
     # Get the user's last passwords hashes from password history

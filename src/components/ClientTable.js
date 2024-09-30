@@ -1,19 +1,21 @@
 import React, { useEffect, useState } from 'react';
 import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Typography, Box, Button } from '@mui/material';
 import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 
 const ClientList = () => {
   const [clients, setClients] = useState([]);
   const navigate = useNavigate(); 
+  const { state } = useLocation();
+  const { username } = state;
 
   const handleLoginPage = () => {
     navigate('/');
   };
 
 const handleDashboard = () => {
-    navigate('/dashboard');
+    navigate('/dashboard', { state: { username : username } } );
 };
 
 
@@ -46,6 +48,7 @@ const handleDashboard = () => {
               <TableCell>Phone Number</TableCell>
               <TableCell>Email</TableCell>
               <TableCell>Package</TableCell>
+              <TableCell>Sector</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -56,6 +59,8 @@ const handleDashboard = () => {
                 <TableCell>{client.clientPhoneNumber}</TableCell>
                 <TableCell>{client.clientEmail}</TableCell>
                 <TableCell>{client.selectedPackage}</TableCell>
+                <TableCell>{client.selectedSector}</TableCell>
+
               </TableRow>
             ))}
           </TableBody>

@@ -109,7 +109,7 @@ const PasswordChange = () => {
             Change Password
           </Button>
           <Box mt={2} textAlign="center">
-            <Button onClick={() => navigate('/dashboard')} color="secondary">
+            <Button onClick={() => navigate('/dashboard', { state: { username } })} color="secondary">
               Back to Dashboard
             </Button>
           </Box>

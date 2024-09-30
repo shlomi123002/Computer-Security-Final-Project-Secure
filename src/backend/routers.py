@@ -58,8 +58,6 @@ class ResetPasswordRequest(BaseModel):
 @user_router.post("/reset-password/")
 def reset_password(request: ResetPasswordRequest, db: Session = Depends(get_db)):
     
-    print("code : ",recovery_code)
-
     # Check if the provided recovery code matches the one stored
     if int(recovery_code) != request.recovery_code:
         raise HTTPException(status_code=400, detail="Invalid recovery code")
@@ -108,26 +106,36 @@ def get_clients(db: Session = Depends(get_db)):
         # Fetch all rows from the result
         clients = result.fetchall()  # Use fetchall() to get all results
 
-        print("Fetched client list:", clients)  # Check what clients contains
-
         # If no clients are found, raise an HTTPException
         if not clients:
             raise HTTPException(status_code=404, detail="No clients found")
-
+        
         # Convert the rows to a list of dictionaries
         client_list = []
         for row in clients:
-            client_list.append({
+            clientID = row["clientID"]
+            print("client id :" ,clientID)
+            package_query = text(f"SELECT * FROM internet_packages WHERE client_id = '{clientID}';")
+            packages = db.execute(package_query)
+
+            for package_info in packages :
+                package_information = package_info["name"] + " ,speed:" + package_info["speed"] + ", Data Limit:" + package_info["data_limit"] + ", price:" + package_info["price"]
+                sector_query = text(f"SELECT name FROM sectors WHERE client_id = '{clientID}';")
+                sector = db.execute(sector_query).fetchone()
+                
+                client_list.append({
                 "clientFirstName": row["clientFirstName"],
                 "clientLastName": row["clientLastName"],
                 "clientEmail": row["clientEmail"],
                 "clientPhoneNumber": row["clientPhoneNumber"],
-                #"selectedPackage":   # Include any additional fields as needed
+                "selectedPackage":  package_information ,
+                "selectedSector" : sector["name"]
             })
+            
+            
 
         return client_list
     
     except Exception as e:
         # Log the error and raise a generic HTTP exception
-        print("Error fetching clients:", str(e))
         raise HTTPException(status_code=500, detail="Internal Server Error")

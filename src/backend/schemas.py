@@ -51,6 +51,7 @@ class ClientCreate(BaseModel):
     clientPhoneNumber: str
     clientEmail: str
     selectedPackage :str
+    selectedSector :str
 
     class Config:
         orm_mode = True

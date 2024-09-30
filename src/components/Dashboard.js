@@ -17,6 +17,7 @@ const Dashboard = () => {
   const [clientPhoneNumber, setPhoneNumber] = useState('');
   const [clientEmail, setEmail] = useState('');
   const [selectedPackage, setSelectedPackage] = useState('');
+  const [selectedSector, setSelectedSector] = useState('');
   const navigate = useNavigate();  
   const { state } = useLocation();
   const { username } = state;
@@ -38,6 +39,7 @@ const Dashboard = () => {
       clientPhoneNumber,
       clientEmail,
       selectedPackage, // Include the selected package
+      selectedSector
     };
 
     try {
@@ -64,7 +66,7 @@ const Dashboard = () => {
   }
 
   const handleViewClients = () => {
-    navigate('/client-table');
+    navigate('/client-table', { state: { username: username ,selectedPackage : selectedPackage , selectedSector : selectedSector } });
   };
 
   const handleChangePassword = () => {
@@ -126,6 +128,19 @@ const Dashboard = () => {
                 {pkg.name} - {pkg.speed}, {pkg.data}, {pkg.price}
               </MenuItem>
             ))}
+          </Select>
+        </FormControl>
+
+        <FormControl fullWidth margin="normal" required>
+          <InputLabel>Select Sector</InputLabel>
+          <Select
+            value={selectedSector}
+            onChange={(e) => setSelectedSector(e.target.value)}
+            label="Select Sector"
+          >
+            <MenuItem value="Private customer">Private customer</MenuItem>
+            <MenuItem value="Small Business">Small Business</MenuItem>
+            <MenuItem value="Corporates">Corporates</MenuItem>
           </Select>
         </FormControl>
 
