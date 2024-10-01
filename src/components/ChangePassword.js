@@ -6,6 +6,22 @@ import CheckIcon from "@mui/icons-material/Check";
 import passwordValue from "../backend/config.json";
 import axios from "axios";
 import { useNavigate, useLocation } from 'react-router-dom';
+import BackgroundImage from '../images/background.jpg';
+
+const FullScreenContainer = styled('div')({
+  height: '100vh',
+  width: '100vw',
+  display: 'flex',
+  justifyContent: 'center',
+  alignItems: 'center',
+  backgroundImage: `url(${BackgroundImage})`,
+  backgroundSize: 'cover',
+  backgroundPosition: 'center',
+  backgroundRepeat: 'no-repeat',
+});
+
+
+
 
 const ChangePasswordWrapper = styled(Paper)({
   padding: '40px',
@@ -63,64 +79,66 @@ const PasswordChange = () => {
   };
 
   return (
-    <ChangePasswordWrapper elevation={6}>
-      <Typography variant="h5" align="center" gutterBottom>
-        Change Your Password
-      </Typography>
-      <form onSubmit={handleSubmit}>
-        <TextField
-          label="Current Password"
-          type="password"
-          value={currentPassword}
-          onChange={(e) => setCurrentPassword(e.target.value)}
-          fullWidth
-          margin="normal"
-          required
-        />
-        <TextField
-          label="New Password"
-          type="password"
-          value={newPassword}
-          onChange={handlePasswordChange}
-          fullWidth
-          margin="normal"
-          required
-        />
-        <Typography style={requirementStyle(passwordValidations.length)}>
-          {passwordValidations.length ? <CheckIcon /> : <CloseIcon />} Must be
-          at least {passwordValue.password_len} characters.
+    <FullScreenContainer>
+      <ChangePasswordWrapper elevation={6}>
+        <Typography variant="h5" align="center" gutterBottom>
+          Change Your Password
         </Typography>
-        <Typography style={requirementStyle(passwordValidations.uppercase)}>
-          {passwordValidations.uppercase ? <CheckIcon /> : <CloseIcon />} Must
-          contain at least {passwordValue.password_requirements.uppercase}{" "}
-          uppercase letter.
-        </Typography>
-        <Typography style={requirementStyle(passwordValidations.specialChar)}>
-          {passwordValidations.specialChar ? <CheckIcon /> : <CloseIcon />} Must
-          contain at least {passwordValue.password_requirements.special_char}{" "}
-          special character.
-        </Typography>
-        <Typography style={requirementStyle(passwordValidations.number)}>
-          {passwordValidations.number ? <CheckIcon /> : <CloseIcon />} Must
-          contain at least {passwordValue.password_requirements.number} number.
-        </Typography>
-        <Box mt={3}>
-          <Button type="submit" variant="contained" color="primary" fullWidth>
-            Change Password
-          </Button>
-          <Box mt={2} textAlign="center">
-            <Button onClick={() => navigate('/dashboard', { state: { username } })} color="secondary">
-              Back to Dashboard
+        <form onSubmit={handleSubmit}>
+          <TextField
+            label="Current Password"
+            type="password"
+            value={currentPassword}
+            onChange={(e) => setCurrentPassword(e.target.value)}
+            fullWidth
+            margin="normal"
+            required
+          />
+          <TextField
+            label="New Password"
+            type="password"
+            value={newPassword}
+            onChange={handlePasswordChange}
+            fullWidth
+            margin="normal"
+            required
+          />
+          <Typography style={requirementStyle(passwordValidations.length)}>
+            {passwordValidations.length ? <CheckIcon /> : <CloseIcon />} Must be
+            at least {passwordValue.password_len} characters.
+          </Typography>
+          <Typography style={requirementStyle(passwordValidations.uppercase)}>
+            {passwordValidations.uppercase ? <CheckIcon /> : <CloseIcon />} Must
+            contain at least {passwordValue.password_requirements.uppercase}{" "}
+            uppercase letter.
+          </Typography>
+          <Typography style={requirementStyle(passwordValidations.specialChar)}>
+            {passwordValidations.specialChar ? <CheckIcon /> : <CloseIcon />} Must
+            contain at least {passwordValue.password_requirements.special_char}{" "}
+            special character.
+          </Typography>
+          <Typography style={requirementStyle(passwordValidations.number)}>
+            {passwordValidations.number ? <CheckIcon /> : <CloseIcon />} Must
+            contain at least {passwordValue.password_requirements.number} number.
+          </Typography>
+          <Box mt={3}>
+            <Button type="submit" variant="contained" color="primary" fullWidth>
+              Change Password
             </Button>
+            <Box mt={2} textAlign="center">
+              <Button onClick={() => navigate('/dashboard', { state: { username } })} color="secondary">
+                Back to Dashboard
+              </Button>
+            </Box>
+            <Box mt={2} textAlign="center">
+              <Button onClick={() => navigate('/')} color="secondary">
+                Back to Login
+              </Button>
+            </Box>
           </Box>
-          <Box mt={2} textAlign="center">
-            <Button onClick={() => navigate('/')} color="secondary">
-              Back to Login
-            </Button>
-          </Box>
-        </Box>
-      </form>
-    </ChangePasswordWrapper>
+        </form>
+      </ChangePasswordWrapper>
+    </FullScreenContainer>
   );
 };
 

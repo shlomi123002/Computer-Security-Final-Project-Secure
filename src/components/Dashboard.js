@@ -3,6 +3,20 @@ import { TextField, Button, Box, Typography, Paper, MenuItem, Select, InputLabel
 import { styled } from '@mui/system';
 import { useNavigate, useLocation } from 'react-router-dom';
 import axios from 'axios';
+import BackgroundImage from '../images/background.jpg';
+
+const FullScreenContainer = styled('div')({
+  height: '110vh',
+  width: '100vw',
+  display: 'flex',
+  justifyContent: 'center',
+  alignItems: 'center',
+  backgroundImage: `url(${BackgroundImage})`,
+  backgroundSize: 'cover',
+  backgroundPosition: 'center',
+  backgroundRepeat: 'no-repeat',
+});
+
 
 const DashboardWrapper = styled(Paper)({
   padding: '40px',
@@ -78,89 +92,86 @@ const Dashboard = () => {
   };
 
   return (
-    <DashboardWrapper elevation={6}>
-      <Typography variant="h5" align="center" gutterBottom>
-        Hello {username}
-      </Typography>
-      <form onSubmit={handleSubmit}>
-        <TextField
-          label="Client First Name"
-          value={clientFirstName}
-          onChange={(e) => setFirstName(e.target.value)}
-          fullWidth
-          margin="normal"
-          required
-        />
-        <TextField
-          label="Client Last Name"
-          value={clientLastName}
-          onChange={(e) => setLastName(e.target.value)}
-          fullWidth
-          margin="normal"
-          required
-        />
-        <TextField
-          label="Client Phone Number"
-          value={clientPhoneNumber}
-          onChange={(e) => setPhoneNumber(e.target.value)}
-          fullWidth
-          margin="normal"
-          required
-        />
-        <TextField
-          label="Client Email"
-          value={clientEmail}
-          onChange={(e) => setEmail(e.target.value)}
-          fullWidth
-          margin="normal"
-          required
-        />
+    <FullScreenContainer>
+      <DashboardWrapper elevation={6}>
+        <Typography variant="h5" align="center" gutterBottom>
+          Hello {username}
+        </Typography>
+        <form onSubmit={handleSubmit}>
+          <TextField
+            label="Client First Name"
+            value={clientFirstName}
+            onChange={(e) => setFirstName(e.target.value)}
+            fullWidth
+            margin="normal"
+            required
+          />
+          <TextField
+            label="Client Last Name"
+            value={clientLastName}
+            onChange={(e) => setLastName(e.target.value)}
+            fullWidth
+            margin="normal"
+            required
+          />
+          <TextField
+            label="Client Phone Number"
+            value={clientPhoneNumber}
+            onChange={(e) => setPhoneNumber(e.target.value)}
+            fullWidth
+            margin="normal"
+            required
+          />
+          <TextField
+            label="Client Email"
+            value={clientEmail}
+            onChange={(e) => setEmail(e.target.value)}
+            fullWidth
+            margin="normal"
+            required
+          />
 
-        <FormControl fullWidth margin="normal" required>
-          <InputLabel>Select Package</InputLabel>
-          <Select
-            value={selectedPackage}
-            onChange={(e) => setSelectedPackage(e.target.value)}
-            label="Select Package"
-          >
-            {packages.map((pkg) => (
-              <MenuItem key={pkg.name} value={pkg.name}>
-                {pkg.name} - {pkg.speed}, {pkg.data}, {pkg.price}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
+          <FormControl fullWidth margin="normal" required>
+            <InputLabel>Select Package</InputLabel>
+            <Select
+              value={selectedPackage}
+              onChange={(e) => setSelectedPackage(e.target.value)}
+              label="Select Package"
+            >
+              {packages.map((pkg) => (
+                <MenuItem key={pkg.name} value={pkg.name}>
+                  {pkg.name} - {pkg.speed}, {pkg.data}, {pkg.price}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
 
-        <FormControl fullWidth margin="normal" required>
-          <InputLabel>Select Sector</InputLabel>
-          <Select
-            value={selectedSector}
-            onChange={(e) => setSelectedSector(e.target.value)}
-            label="Select Sector"
-          >
-            <MenuItem value="Private customer">Private customer</MenuItem>
-            <MenuItem value="Small Business">Small Business</MenuItem>
-            <MenuItem value="Corporates">Corporates</MenuItem>
-          </Select>
-        </FormControl>
+          <FormControl fullWidth margin="normal" required>
+            <InputLabel>Select Sector</InputLabel>
+            <Select
+              value={selectedSector}
+              onChange={(e) => setSelectedSector(e.target.value)}
+              label="Select Sector"
+            >
+              <MenuItem value="Private customer">Private customer</MenuItem>
+              <MenuItem value="Small Business">Small Business</MenuItem>
+              <MenuItem value="Corporates">Corporates</MenuItem>
+            </Select>
+          </FormControl>
 
-        <Box mt={3}>
-          <Button type="submit" variant="contained" color="primary" fullWidth>
-            Add Client
+          <Box mt={3}>
+            <Button type="submit" variant="contained" color="primary" fullWidth>
+              Add Client
+            </Button>
+          </Box>
+        </form>
+
+        <Box mt={2} textAlign="center">
+          <Button onClick={handleViewClients} variant="contained" color="inherit" fullWidth>
+            View All Clients
           </Button>
         </Box>
-      </form>
 
-      <Box mt={2} textAlign="center">
-        <Button onClick={handleViewClients} variant="contained" color="inherit" fullWidth>
-          View All Clients
-        </Button>
-      </Box>
-
-      <Box mt={2}>
-        <Typography variant="body1">
-          Recently added client: {clientFirstName} {clientLastName}
-        </Typography>
         <Box mt={2} textAlign="center">
           <Button color="secondary" onClick={handleChangePassword}>
             Change Password
@@ -171,8 +182,8 @@ const Dashboard = () => {
             Log Out
           </Button>
         </Box>
-      </Box>
-    </DashboardWrapper>
+      </DashboardWrapper>
+    </FullScreenContainer>
   );
 };
 

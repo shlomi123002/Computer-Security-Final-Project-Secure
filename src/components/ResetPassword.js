@@ -6,6 +6,7 @@ import axios from 'axios';
 import CloseIcon from "@mui/icons-material/Close";
 import CheckIcon from "@mui/icons-material/Check";
 import passwordValue from "../backend/config.json";
+import BackgroundImage from '../images/background.jpg';
 
 const FullScreenContainer = styled('div')({
   height: '100vh',
@@ -13,8 +14,12 @@ const FullScreenContainer = styled('div')({
   display: 'flex',
   justifyContent: 'center',
   alignItems: 'center',
-  backgroundColor: '#f5f5f5',
+  backgroundImage: `url(${BackgroundImage})`,
+  backgroundSize: 'cover',
+  backgroundPosition: 'center',
+  backgroundRepeat: 'no-repeat',
 });
+
 
 const requirementStyle = (isValid) => ({
   display: "flex",

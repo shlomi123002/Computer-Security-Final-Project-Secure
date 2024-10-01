@@ -8,7 +8,9 @@
 
     "password_history" : 3 ,
 
-    "number_of_attempts" : 3 
+    "number_of_attempts" : 3 ,
+
+    "block_time_in_seconds" : 90 
     
 
     

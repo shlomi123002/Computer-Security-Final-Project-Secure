@@ -1,8 +1,6 @@
 from pydantic import BaseModel, EmailStr, validator
 import re
 import json
-from pathlib import Path
-
 
 class UserCreate(BaseModel):
     username: str
@@ -55,3 +53,19 @@ class ClientCreate(BaseModel):
 
     class Config:
         orm_mode = True
+
+class ForgotPasswordRequest(BaseModel):
+    user_name: str
+
+class PasswordChangeRequest(BaseModel):
+    user_name: str
+    current_password: str
+    new_password: str
+
+
+class ResetPasswordRequest(BaseModel):
+    user_name: str
+    recovery_code: str
+    new_password: str
+
+

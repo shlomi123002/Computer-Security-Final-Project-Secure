@@ -2,8 +2,8 @@ import React, { useState } from 'react';
 import { TextField, Button, Box, Typography, Paper } from '@mui/material';
 import { styled } from '@mui/system';
 import { useNavigate } from 'react-router-dom';
-import BackgroundImage from '../images/communication_LTD.jpg';
 import axios from 'axios';
+import BackgroundImage from '../images/background.jpg';
 
 const FullScreenContainer = styled('div')({
   height: '100vh',

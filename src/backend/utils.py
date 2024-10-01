@@ -1,6 +1,4 @@
 from passlib.context import CryptContext
-from passlib.utils import consteq
-import random
 import smtplib
 import hashlib
 import hmac
@@ -29,11 +27,7 @@ def get_password_hash(password: str, salt: str) -> str:
 #     return pwd_context.verify(provided_password + salt, hashed_password)
 
 
-def send_recovery_code(email: str):
-    recovery_code = ''.join([str(random.randint(0, 9)) for _ in range(6)])
-
-    # יצירת Hash באמצעות SHA-1
-   # recovery_code = hashlib.sha1(random_code.encode()).hexdigest()
+def send_recovery_code(email: str , recovery_code: str):
 
     # Create the email message
     msg = MIMEText(f"Your recovery code is: {recovery_code}")
@@ -50,5 +44,13 @@ def send_recovery_code(email: str):
         smtp.quit()
     except Exception as e:
         print(f"Failed to send email: {e}")
-    
+
+def recovery_code_hashed(random_code: str , salt: str) -> str :
+
+    random_code_with_salt = salt + random_code 
+
+    # recivery code with salt + sha1 
+    recovery_code = hashlib.sha1(random_code_with_salt.encode()).hexdigest()
+
     return recovery_code
+
