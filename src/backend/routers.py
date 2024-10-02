@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException, Depends
 from sqlalchemy.orm import Session
-from schemas import ClientCreate, UserCreate, UserLogin, ForgotPasswordRequest, PasswordChangeRequest , ResetPasswordRequest
+from schemas import ClientCreate, UserCreate, UserLogin, ForgotPasswordRequest, PasswordChangeRequest, ResetPasswordRequest
 from crud import create_user, validate_user, update_password, create_client, verify_password, generate_salt, number_of_password_history
 from database import get_db
 from utils import send_recovery_code, recovery_code_hashed
@@ -17,7 +17,6 @@ def register_user(user: UserCreate, db: Session = Depends(get_db)):
         raise HTTPException(status_code=400, detail=str(e))
     return result
 
-# SQL injection vulnerability for login page -> hacker' OR 1=1 #
 @user_router.post("/login/")
 def login_user(user: UserLogin, db: Session = Depends(get_db)):
     try:
@@ -31,9 +30,9 @@ def login_user(user: UserLogin, db: Session = Depends(get_db)):
 
 @user_router.post("/forgot-password/")
 def forgot_password(request: ForgotPasswordRequest, db: Session = Depends(get_db)):
-    # Vulnerable to SQL injection
-    get_email_query = text(f"SELECT email FROM users WHERE userName = '{request.user_name}' LIMIT 1;")
-    email = db.execute(get_email_query).fetchone()
+    # Use a parameterized query to prevent SQL injection
+    get_email_query = text("SELECT email FROM users WHERE userName = :username LIMIT 1;")
+    email = db.execute(get_email_query, {"username": request.user_name}).fetchone()
 
     if not email:
         raise ValueError("Username not found")
@@ -41,26 +40,29 @@ def forgot_password(request: ForgotPasswordRequest, db: Session = Depends(get_db
     # Generate a 6-digit random code
     random_code = ''.join([str(random.randint(0, 9)) for _ in range(6)])
     salt = generate_salt()
-
     recovery_code_with_sha1 = recovery_code_hashed(str(random_code), str(salt))
 
-    # Vulnerable to SQL injection
-    userID_query = text(f"SELECT userID FROM users WHERE userName = '{request.user_name}'")
-    userID_Result = db.execute(userID_query).fetchone()
+    # Use a parameterized query to prevent SQL injection
+    userID_query = text("SELECT userID FROM users WHERE userName = :username")
+    userID_Result = db.execute(userID_query, {"username": request.user_name}).fetchone()
 
     userID = userID_Result[0]
 
-    # Vulnerable to SQL injection
-    delete_recovery_code_query = text(f"DELETE FROM recovery_code WHERE userID = {userID}")
-    db.execute(delete_recovery_code_query)
+    # Use a parameterized query to prevent SQL injection
+    delete_recovery_code_query = text("DELETE FROM recovery_code WHERE userID = :userID")
+    db.execute(delete_recovery_code_query, {"userID": userID})
     db.commit()
 
     # Insert recovery code (this part uses parameterized query)
-    insert_recovery_code_query = text(f"""
+    insert_recovery_code_query = text("""
         INSERT INTO recovery_code (userID, recovery_code, salt)
-        VALUES ('{userID}', '{recovery_code_with_sha1}', '{salt}')
+        VALUES (:userID, :recovery_code, :salt)
     """)
-    db.execute(insert_recovery_code_query)
+    db.execute(insert_recovery_code_query, {
+        "userID": userID,
+        "recovery_code": recovery_code_with_sha1,
+        "salt": salt
+    })
 
     db.commit()
 
@@ -70,14 +72,14 @@ def forgot_password(request: ForgotPasswordRequest, db: Session = Depends(get_db
 
 @user_router.post("/reset-password/")
 def reset_password(request: ResetPasswordRequest, db: Session = Depends(get_db)):
-    # Vulnerable to SQL injection
-    userID_query = text(f"SELECT userID FROM users WHERE userName = '{request.user_name}'")
-    userID_result = db.execute(userID_query).fetchone()
+    # Use a parameterized query to prevent SQL injection
+    userID_query = text("SELECT userID FROM users WHERE userName = :username")
+    userID_result = db.execute(userID_query, {"username": request.user_name}).fetchone()
     user_id = userID_result[0]
 
-    # Vulnerable to SQL injection
-    recovery_code_query = text(f"SELECT recovery_code, salt FROM recovery_code WHERE userID = '{user_id}'")
-    result = db.execute(recovery_code_query).fetchone()
+    # Use a parameterized query to prevent SQL injection
+    recovery_code_query = text("SELECT recovery_code, salt FROM recovery_code WHERE userID = :userID")
+    result = db.execute(recovery_code_query, {"userID": user_id}).fetchone()
 
     table_recovery_code = result[0]
     recovery_code_salt = result[1]
@@ -104,7 +106,6 @@ def change_password(user: PasswordChangeRequest, db: Session = Depends(get_db)):
     
     return {"msg": "Password updated successfully"}
 
-# Add a client to the clients table
 @user_router.post("/Dashboard/")
 def add_client(client: ClientCreate, db: Session = Depends(get_db)):
     try:
@@ -116,7 +117,7 @@ def add_client(client: ClientCreate, db: Session = Depends(get_db)):
 @user_router.get("/client-table")
 def get_clients(db: Session = Depends(get_db)):
     try:
-        # Vulnerable to SQL injection
+        # Use a parameterized query to prevent SQL injection
         query = text("SELECT * FROM clients")
         result = db.execute(query)
         clients = result.fetchall()
@@ -128,16 +129,16 @@ def get_clients(db: Session = Depends(get_db)):
         for row in clients:
             clientID = row["clientID"]
 
-            # Vulnerable to SQL injection
-            package_query = text(f"SELECT * FROM internet_packages WHERE client_id = '{clientID}'")
-            packages = db.execute(package_query)
+            # Use a parameterized query to prevent SQL injection
+            package_query = text("SELECT * FROM internet_packages WHERE client_id = :client_id")
+            packages = db.execute(package_query, {"client_id": clientID})
 
             for package_info in packages:
                 package_information = f"{package_info['name']} ,speed: {package_info['speed']}, Data Limit: {package_info['data_limit']}, price: {package_info['price']}"
 
-                # Vulnerable to SQL injection
-                sector_query = text(f"SELECT name FROM sectors WHERE client_id = '{clientID}'")
-                sector = db.execute(sector_query).fetchone()
+                # Use a parameterized query to prevent SQL injection
+                sector_query = text("SELECT name FROM sectors WHERE client_id = :client_id")
+                sector = db.execute(sector_query, {"client_id": clientID}).fetchone()
 
                 client_list.append({
                     "clientFirstName": row["clientFirstName"],
@@ -145,7 +146,7 @@ def get_clients(db: Session = Depends(get_db)):
                     "clientEmail": row["clientEmail"],
                     "clientPhoneNumber": row["clientPhoneNumber"],
                     "selectedPackage": package_information,
-                    "selectedSector": sector["name"]
+                    "selectedSector": sector["name"] if sector else None
                 })
 
         return client_list
