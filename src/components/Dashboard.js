@@ -46,23 +46,17 @@ const Dashboard = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const clientData = {
-      userName: username,
-      clientFirstName,
-      clientLastName,
-      clientPhoneNumber,
-      clientEmail,
-      selectedPackage, // Include the selected package
-      selectedSector
-    };
-
     try {
-      const response = await axios.post('http://localhost:8000/Dashboard', clientData, {
-        headers: {
-          'Content-Type': 'application/json',
-        },
+      const response = await axios.post('http://localhost:8000/Dashboard/', {
+        userName: username,
+        clientFirstName: clientFirstName,
+        clientLastName: clientLastName,
+        clientPhoneNumber: clientPhoneNumber,
+        clientEmail: clientEmail,
+        selectedPackage: selectedPackage,
+        selectedSector: selectedSector,
       });
-    
+
       if (response.status === 200) {
         alert('Client added successfully');
         setFirstName('');
@@ -77,7 +71,7 @@ const Dashboard = () => {
       console.error('Error:', error);
       alert('An error occurred. Please try again later.');
     }
-  }
+  };
 
   const handleViewClients = () => {
     navigate('/client-table', { state: { username: username ,selectedPackage : selectedPackage , selectedSector : selectedSector } });
