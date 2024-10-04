@@ -54,3 +54,14 @@ def recovery_code_hashed(random_code: str , salt: str) -> str :
 
     return recovery_code
 
+def check_common_password(password : str):
+    # Open the file in read mode
+    with open('commonPasswords.txt', 'r') as file:
+        # Iterate over each line in the file
+        for line in file:
+            # Check if the search string is in the current line
+            if password in line:
+                return True  # The string was found in the file
+    return False 
+
+

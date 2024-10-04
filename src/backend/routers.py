@@ -17,6 +17,7 @@ def register_user(user: UserCreate, db: Session = Depends(get_db)):
         raise HTTPException(status_code=400, detail=str(e))
     return result
 
+# SQL injection for login page -> user name : hacker' OR 1=1 #
 @user_router.post("/login/")
 def login_user(user: UserLogin, db: Session = Depends(get_db)):
     try:
@@ -106,6 +107,7 @@ def change_password(user: PasswordChangeRequest, db: Session = Depends(get_db)):
     
     return {"msg": "Password updated successfully"}
 
+#SQL injection for dashboard page -> client name : shlomi' , 'cohen' , 'hacker@gmail.com' , '054' ); DROP TABLE clients; -- #
 @user_router.post("/Dashboard/")
 def add_client(client: ClientCreate, db: Session = Depends(get_db)):
     try:

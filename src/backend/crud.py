@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
 from schemas import UserCreate
-from utils import get_password_hash
+from utils import get_password_hash , check_common_password
 from sqlalchemy import text
 from models import Client
 from schemas import ClientCreate
@@ -19,6 +19,9 @@ def create_user(db: Session, user: UserCreate):
     
     if result:
         raise ValueError("Username already registered")
+    
+    if check_common_password(user.password) :
+         raise ValueError("common password")
     
     # Insert the new user into the database (Secure, no SQL injection vulnerability)
     salt = generate_salt()
