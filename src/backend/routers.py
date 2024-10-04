@@ -9,6 +9,7 @@ import random
 
 user_router = APIRouter()
 
+#SQL injection for register page -> email : email@example.com', 'password', 'salt'); #
 @user_router.post("/register/")
 def register_user(user: UserCreate, db: Session = Depends(get_db)):
     try:
