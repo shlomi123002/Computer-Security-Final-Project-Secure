@@ -104,7 +104,7 @@ def change_password(user: PasswordChangeRequest, db: Session = Depends(get_db)):
     number_of_history = number_of_password_history()
 
     if not update_password(db, user.user_name, user.new_password):
-        raise HTTPException(status_code=400, detail=f"The new password cannot be one of the last '{number_of_history}' used passwords.")
+        raise HTTPException(status_code=400, detail=f"The new password cannot be one of the last {number_of_history} used passwords.")
     
     return {"msg": "Password updated successfully"}
 

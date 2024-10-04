@@ -67,16 +67,22 @@ const PasswordChange = () => {
     e.preventDefault();
     try {
       const response = await axios.put('http://localhost:8000/change-password/', {
-        user_name: username, 
+        user_name: username,
         current_password: currentPassword,
         new_password: newPassword,
       });
-      alert(response.data.msg);
+      
+      alert(response.data.msg); // Show success message
       navigate('/Dashboard', { state: { username } });
     } catch (error) {
-      alert("Failed to change password. Please check your current password.");
+      // Check if error response exists
+      if (error.response && error.response.data && error.response.data.detail) {
+        alert(error.response.data.detail); // Show the error message from the backend
+      } else {
+        alert("An unexpected error occurred."); // Fallback error message
+      }
     }
-  };
+  }
 
   return (
     <FullScreenContainer>
