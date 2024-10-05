@@ -2,7 +2,6 @@ from sqlalchemy.orm import Session
 from schemas import UserCreate
 from utils import get_password_hash , check_common_password
 from sqlalchemy import text
-from models import Client
 from schemas import ClientCreate
 import json
 from secrets import token_bytes
@@ -312,31 +311,3 @@ def number_of_password_history() -> int:
         config = json.load(file)
 
     return config['password_history']
-
-def delete_client(db: Session, clientID: str):
-    delete_client_query = """
-        DELETE FROM clients
-        WHERE clientID = :clientID
-    """
-    db.execute(text(delete_client_query), {
-        "clientID": clientID
-    })
-    db.commit()
-
-def update_client(db: Session, client: Client):
-    update_client_query = """
-        UPDATE clients
-        SET clientFirstName = :firstName, clientLastName = :lastName, clientEmail = :email, clientPhoneNumber = :phone
-        WHERE clientID = :clientID
-    """
-    db.execute(text(update_client_query), {
-        "firstName": client.clientFirstName,
-        "lastName": client.clientLastName,
-        "email": client.clientEmail,
-        "phone": client.clientPhoneNumber,
-        "clientID": client.clientID
-    })
-    db.commit()
-
-    insert_into_internet_package(db, client.selectedPackage, client.clientID)
-    insert_into_sectors(db, client.selectedSector, client.clientID)

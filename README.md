@@ -1,70 +1,70 @@
-# Getting Started with Create React App
+# Security Course Project: SQL Injection and XSS Attacks Demonstration
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+## Description
+This project was developed for the **Computer Security** course as part of a demonstration of web vulnerabilities. The project simulates a telecommunications company, **Communication_LTD**, and includes both a vulnerable version and a secure version to showcase how SQL Injection (SQLi) and Cross-Site Scripting (XSS) attacks can be mitigated in web applications. The frontend is built using React, the backend uses FastAPI (Python), and MySQL is used as the relational database.
 
-## Available Scripts
+## Features
+- **User Registration**: New users can create accounts to access the site.
+- **User Login**: Secure user login functionality.
+- **Password Recovery**: Users can recover forgotten passwords through email verification.
+- **Password Change**: Users can change their password securely.
+- **Client Management**: Users can add, edit, and manage clients.
+- **Logout Functionality**: Users can securely log out of their accounts.
 
-In the project directory, you can run:
+## Technologies Used
+- **Frontend**: React.js
+- **Backend**: FastAPI (Python)
+- **Database**: MySQL
+- **Communication**: Axios for HTTP requests
 
-### `npm start`
+## Installation
+Follow these steps to set up and run the project locally.
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+### Prerequisites
+- **Python 3.x**: Ensure Python is installed.
+- **Node.js**: Required for running the React frontend.
+- **MySQL**: Install and set up a MySQL server.
+- **Git**: For cloning the repository.
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+### Clone the Repository
+```bash
+git clone https://github.com/shlomi123002/Computer-Security-Final-Project-Secure
+cd Computer-Security-Final-Project-Secure
+```
 
-### `npm test`
+### Install Backend Dependencies
+```bash
+pip install -r requirements.txt
+```
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+### Frontend Setup
+Navigate to the frontend directory and install the required dependencies:
+```bash
+cd frontend
+npm install
+```
 
-### `npm run build`
+### Database Setup
+1. Create a new MySQL database.
+2. Update the database connection string in the configuration file (e.g., `.env` or `config.py`).
+3. Set up the database schema (migrate if needed).
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+### Run the Application
+1. Start the backend server:
+   ```bash
+   uvicorn main:app --reload
+   ```
+2. In a new terminal window, start the React frontend:
+   ```bash
+   npm start
+   ```
+3. Open your browser and go to `http://localhost:3000` to access the application.
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+## Security Vulnerabilities
+This project includes both vulnerable and secure versions to demonstrate common web vulnerabilities such as SQL Injection (SQLi) and Cross-Site Scripting (XSS). It is meant for educational purposes only.
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+### SQL Injection Example
+A demonstration of an SQL injection attack can be performed on the vulnerable version of the system by manipulating the login input.
 
-### `npm run eject`
-
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
-
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
-
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+### XSS Example
+Cross-Site Scripting (XSS) attacks can be demonstrated by submitting malicious scripts in form fields that are not properly sanitized.

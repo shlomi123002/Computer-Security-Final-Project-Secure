@@ -2,10 +2,6 @@ from pydantic import BaseModel, EmailStr, validator
 import re
 import json
 
-class UserCreate(BaseModel):
-    username: str
-    email: EmailStr
-    password: str
 
 
 def load_json_config():
@@ -36,6 +32,12 @@ def validate_password(cls, value):
     if errors:
         raise ValueError(' '.join(errors))
     return value
+
+class UserCreate(BaseModel):
+    username: str
+    email: str
+    password: str
+
 
 class UserLogin(BaseModel):
     username: str

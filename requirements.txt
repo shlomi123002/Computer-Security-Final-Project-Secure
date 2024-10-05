@@ -1,0 +1,23 @@
+# Python Dependencies (Backend)
+
+To install all required Python dependencies for the backend, run:
+pip install -r requirements.txt
+
+Required Python Libraries:
+- fastapi
+- uvicorn
+- sqlalchemy
+- pydantic
+- mysql-connector-python
+
+# React Dependencies (Frontend)
+
+To install all required React dependencies for the frontend, run:
+npm install
+
+Required React Libraries:
+- axios: "^0.21.1"
+- react: "^17.0.1"
+- react-dom: "^17.0.1"
+- react-scripts: "4.0.3"
+- @mui/material: "^5.0.0"
