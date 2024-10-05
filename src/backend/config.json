@@ -1,7 +1,7 @@
 {
     "password_len": 10,
     "password_requirements": {
-        "uppercase": 2,
+        "uppercase": 1,
         "special_char": 1,
         "number": 1
 },
