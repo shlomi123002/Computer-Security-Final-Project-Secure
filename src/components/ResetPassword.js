@@ -57,12 +57,12 @@ const ResetPassword = () => {
 
     setPasswordValidations({
       length: value.length >= passwordValue.password_len,
-      uppercase: /[A-Z]/.test(value),
-      specialChar: /[!@#$%^&*(),.?":{}|<>]/.test(value),
-      number: /[0-9]/.test(value),
+      uppercase: (value.match(/[A-Z]/g) || []).length >= passwordValue.password_requirements.uppercase,
+      specialChar: (value.match(/[!@#$%^&*(),.?":{}|<>]/g) || []).length >= passwordValue.password_requirements.special_char,
+      number: (value.match(/[0-9]/g) || []).length >= passwordValue.password_requirements.number
     });
   };
-
+  
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {

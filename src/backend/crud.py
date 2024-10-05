@@ -12,7 +12,7 @@ def generate_salt(length=16):
     return token_bytes(length).hex()
 
 def create_user(db: Session, user: UserCreate):
-    # Check if username is already registered (Secure, no SQL injection vulnerability)
+    # Check if username is already registered 
     check_user_query = "SELECT * FROM users WHERE userName = :username"
     result = db.execute(text(check_user_query), {"username": user.username}).fetchone()
     
@@ -22,7 +22,7 @@ def create_user(db: Session, user: UserCreate):
     if check_common_password(user.password) :
          raise ValueError("common password")
     
-    # Insert the new user into the database (Secure, no SQL injection vulnerability)
+    # Insert the new user into the database
     salt = generate_salt()
     hashed_password = get_password_hash(user.password, salt)
     insert_user_query = """
@@ -37,16 +37,16 @@ def create_user(db: Session, user: UserCreate):
     })
     insert_into_passwordhistory_table(db, user.username, hashed_password, salt)
     
-    db.commit()  # Commit the transaction
+    db.commit() 
     
     return {"msg": f"User {user.username} registered successfully!"}
 
 def get_user(db: Session, username: str):
-    # Fetch user by username (Secure, no SQL injection vulnerability)
+    # Fetch user by username 
     get_user_query = "SELECT * FROM users WHERE userName = :username"
     result = db.execute(text(get_user_query), {"username": username}).fetchone()
     
-    return result  # This returns a Row object
+    return result  
 
 def number_of_attempts() -> int:
     # Load the config.json file
@@ -66,7 +66,7 @@ BLOCK_DURATION = block_time_in_seconds()  # Block time in seconds
 MAX_ATTEMPTS = number_of_attempts()  # Maximum failed attempts
 
 def validate_user(db: Session, username: str, password: str):
-    # Check if the user is blocked (Secure, no SQL injection vulnerability)
+    # Check if the user is blocked 
     block_query = "SELECT failed_attempts, block_until FROM failed_logins WHERE username = :username ORDER BY id DESC LIMIT 1"
     block_result = db.execute(text(block_query), {"username": username}).fetchone()
 
@@ -83,7 +83,7 @@ def validate_user(db: Session, username: str, password: str):
             db.execute(text(reset_attempts_query), {"username": username})
             db.commit()
 
-    # Fetch the salt for the username (Secure, no SQL injection vulnerability)
+    # Fetch the salt for the username 
     salt_query = "SELECT salt FROM users WHERE userName = :username"
     salt_result = db.execute(text(salt_query), {"username": username}).fetchone()
 
@@ -93,7 +93,7 @@ def validate_user(db: Session, username: str, password: str):
     salt = salt_result[0]
     hashed_password = get_password_hash(password, salt)
 
-    # Check if the username and hashed password match a user (Secure, no SQL injection vulnerability)
+    # Check if the username and hashed password match a user 
     query = "SELECT * FROM users WHERE userName = :username AND password = :password LIMIT 1"
     result = db.execute(text(query), {"username": username, "password": hashed_password}).fetchone()
 

@@ -16,15 +16,7 @@ pwd_context = CryptContext(
 def get_password_hash(password: str, salt: str) -> str:
     # Hash the password with the salt using SHA256
     hashed_password = hmac.new(salt.encode(), password.encode(), hashlib.sha256).hexdigest()
-    # Return the salt along with the hashed password
     return hashed_password
-
-# Function to verify a password
-# def verify_password(stored_password: str, provided_password: str) -> bool:
-#     # Extract the salt and the hashed password
-#     salt, hashed_password = stored_password.split('$', 1)
-#     # Verify the provided password with the extracted salt
-#     return pwd_context.verify(provided_password + salt, hashed_password)
 
 
 def send_recovery_code(email: str , recovery_code: str):

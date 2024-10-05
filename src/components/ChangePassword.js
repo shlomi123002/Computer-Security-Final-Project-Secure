@@ -39,7 +39,7 @@ const PasswordChange = () => {
     specialChar: false,
     number: false,
   });
-  const navigate = useNavigate();  // Initialize useNavigate
+  const navigate = useNavigate(); 
   const {state} = useLocation();
   const { username } = state;
 
@@ -57,9 +57,9 @@ const PasswordChange = () => {
     // Check each password requirement
     setPasswordValidations({
       length: value.length >= passwordValue.password_len,
-      uppercase: /[A-Z]/.test(value),
-      specialChar: /[!@#$%^&*(),.?":{}|<>]/.test(value),
-      number: /[0-9]/.test(value),
+      uppercase: (value.match(/[A-Z]/g) || []).length >= passwordValue.password_requirements.uppercase,
+      specialChar: (value.match(/[!@#$%^&*(),.?":{}|<>]/g) || []).length >= passwordValue.password_requirements.special_char,
+      number: (value.match(/[0-9]/g) || []).length >= passwordValue.password_requirements.number
     });
   };
 
