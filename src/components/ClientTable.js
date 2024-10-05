@@ -48,6 +48,23 @@ const handleDashboard = () => {
     fetchClients();
   }, []);
 
+   // Handle client deletion
+   const handleDelete = async (clientID) => {
+    try {
+      // Make the DELETE request to delete the client from the backend
+      console.log(clients)
+      await axios.delete(`http://localhost:8000/clients/${clientID}`);
+
+      // Update the local state to remove the deleted client from the list
+      setClients(clients.filter((client) => client.id !== clientID));
+      alert('Client deleted successfully!');
+      window.location.reload();
+    } catch (error) {
+      console.error('Error deleting client:', error);
+      alert('Failed to delete client');
+    }
+  };
+
   return (
     <FullScreenContainer>
       <Box m={4}>
@@ -64,17 +81,27 @@ const handleDashboard = () => {
                 <TableCell>Email</TableCell>
                 <TableCell>Package</TableCell>
                 <TableCell>Sector</TableCell>
+                <TableCell>Delete</TableCell> 
               </TableRow>
             </TableHead>
             <TableBody>
               {clients.map((client) => (
-                <TableRow key={client.id}>
+                <TableRow key={client.clientID}>
                   <TableCell>{client.clientFirstName}</TableCell>
                   <TableCell>{client.clientLastName}</TableCell>
                   <TableCell>{client.clientPhoneNumber}</TableCell>
                   <TableCell>{client.clientEmail}</TableCell>
                   <TableCell>{client.selectedPackage}</TableCell>
                   <TableCell>{client.selectedSector}</TableCell>
+                  <TableCell>
+                    <Button
+                      variant="contained"
+                      color="error"
+                      onClick={() => handleDelete(client.clientID)} // Pass client ID to the delete handler
+                    >
+                      Delete
+                    </Button>
+                  </TableCell>
 
                 </TableRow>
               ))}
