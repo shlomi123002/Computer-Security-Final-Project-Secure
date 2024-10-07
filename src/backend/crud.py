@@ -41,22 +41,15 @@ def create_user(db: Session, user: UserCreate):
     
     return {"msg": f"User {user.username} registered successfully!"}
 
-def get_user(db: Session, username: str):
-    # Fetch user by username 
-    get_user_query = "SELECT * FROM users WHERE userName = :username"
-    result = db.execute(text(get_user_query), {"username": username}).fetchone()
-    
-    return result  
-
 def number_of_attempts() -> int:
-    # Load the config.json file
+    # Load the config.json file to read number of attempts
     with open('config.json', 'r') as file:
         config = json.load(file)
     
     return config['number_of_attempts']
 
 def block_time_in_seconds() -> int:
-    # Load the config.json file
+    # Load the config.json file to read block time in seconds
     with open('config.json', 'r') as file:
         config = json.load(file)
     
@@ -134,6 +127,7 @@ def validate_user(db: Session, username: str, password: str):
         db.commit()
         raise ValueError("Invalid username or password")
 
+#Check if password is currect
 def verify_password(db: Session, current_password: str, user_name: str) -> bool:
     salt_query = "SELECT salt FROM users WHERE userName = :username"
     salt_result = db.execute(text(salt_query), {"username": user_name}).fetchone()
@@ -149,11 +143,7 @@ def verify_password(db: Session, current_password: str, user_name: str) -> bool:
 
     return current_password_after_hash == table_password[0]
 
-def get_user_by_name(db: Session, username: str):
-    get_user_query = "SELECT * FROM users WHERE userName = :username LIMIT 1"
-    result = db.execute(text(get_user_query), {"username": username}).fetchone()
-    return result
-
+#Update new password and store it in data base
 def update_password(db: Session, username, new_password: str):
     salt = generate_salt()
     hashed_password = get_password_hash(new_password, salt)
@@ -176,6 +166,7 @@ def update_password(db: Session, username, new_password: str):
     insert_into_passwordhistory_table(db, username, hashed_password, salt)
     return True
 
+#Create new client and insert it to database
 def create_client(db: Session, client: ClientCreate):
     client_query = """
         INSERT INTO clients (clientFirstName, clientLastName, clientEmail, clientPhoneNumber)
@@ -210,6 +201,7 @@ def create_client(db: Session, client: ClientCreate):
     
     return {"message": "Client created successfully"}
 
+#Insert into sectors table
 def insert_into_sectors(db: Session, sector: str, client_id: str):
     name = sector
     client_query = """
@@ -222,6 +214,7 @@ def insert_into_sectors(db: Session, sector: str, client_id: str):
     })
     db.commit()
 
+#Insert into internet package table
 def insert_into_internet_package(db: Session, package: str, clientID: str):
     # Define package details based on the selected package
     if package == "Basic":
@@ -242,7 +235,6 @@ def insert_into_internet_package(db: Session, package: str, clientID: str):
     else:
         raise ValueError("Invalid package selected")
 
-    # Use a parameterized query to insert the data into the database
     client_query = """
         INSERT INTO internet_packages (client_id, name, speed, data_limit, price)
         VALUES (:clientID, :name, :speed, :data_limit, :price)
@@ -307,6 +299,7 @@ def check_password_history(db: Session, username: str, new_password: str) -> boo
     return True
 
 def number_of_password_history() -> int:
+     # Load the config.json file to read number of password history to store
     with open('config.json', 'r') as file:
         config = json.load(file)
 

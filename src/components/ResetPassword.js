@@ -20,7 +20,6 @@ const FullScreenContainer = styled('div')({
   backgroundRepeat: 'no-repeat',
 });
 
-
 const requirementStyle = (isValid) => ({
   display: "flex",
   alignItems: "center",

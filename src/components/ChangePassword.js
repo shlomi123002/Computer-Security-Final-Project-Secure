@@ -20,9 +20,6 @@ const FullScreenContainer = styled('div')({
   backgroundRepeat: 'no-repeat',
 });
 
-
-
-
 const ChangePasswordWrapper = styled(Paper)({
   padding: '40px',
   margin: '20px auto',
@@ -72,14 +69,13 @@ const PasswordChange = () => {
         new_password: newPassword,
       });
       
-      alert(response.data.msg); // Show success message
+      alert(response.data.msg); 
       navigate('/Dashboard', { state: { username } });
     } catch (error) {
-      // Check if error response exists
       if (error.response && error.response.data && error.response.data.detail) {
-        alert(error.response.data.detail); // Show the error message from the backend
+        alert(error.response.data.detail); 
       } else {
-        alert("An unexpected error occurred."); // Fallback error message
+        alert("An unexpected error occurred."); 
       }
     }
   }

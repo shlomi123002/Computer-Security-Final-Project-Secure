@@ -9,7 +9,7 @@ import random
 
 user_router = APIRouter()
 
-#SQL injection for register page -> email : email@example.com', 'password', 'salt'); #
+#SQL injection for register page -> email : hacker@gmail.com', 'password', 'salt'); #
 @user_router.post("/register/")
 def register_user(user: UserCreate, db: Session = Depends(get_db)):
     try:
@@ -105,7 +105,6 @@ def change_password(user: PasswordChangeRequest, db: Session = Depends(get_db)):
 
 #XSS attack : <img src="x" onerror="window.location=\'https://www.hit.ac.il/\'">
 #SQL injection for dashboard page -> client name :  hacker' , 'Sqli' , 'hacker@gmail.com' , '0' );#
-# Add a client to the clients table
 @user_router.post("/Dashboard/")
 def add_client(client: ClientCreate, db: Session = Depends(get_db)):
     try:
@@ -152,7 +151,6 @@ def get_clients(db: Session = Depends(get_db)):
     except Exception as e:
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
-# New DELETE endpoint to delete a client
 @user_router.delete("/clients/{client_id}")
 def delete_client(client_id: int, db: Session = Depends(get_db)):
     try:

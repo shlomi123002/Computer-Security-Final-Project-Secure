@@ -2,8 +2,6 @@ from pydantic import BaseModel, validator
 import re
 import json
 
-
-
 def load_json_config():
     with open('config.json', 'r') as file:
         return json.load(file)
@@ -15,7 +13,6 @@ PASSWORD_MIN_LENGTH = json_config.get('password_min_length', 10)
 PASSWORD_UPPERCASE = json_config.get('password_uppercase', True)
 PASSWORD_SPECIAL = json_config.get('password_special', True)
 PASSWORD_NUMBER = json_config.get('password_number', True)
-
 
 @validator('password')
 def validate_password(cls, value):
@@ -38,11 +35,9 @@ class UserCreate(BaseModel):
     email: str
     password: str
 
-
 class UserLogin(BaseModel):
     username: str
     password: str
-
 
 class ClientCreate(BaseModel):
     userName: str
@@ -64,10 +59,7 @@ class PasswordChangeRequest(BaseModel):
     current_password: str
     new_password: str
 
-
 class ResetPasswordRequest(BaseModel):
     user_name: str
     recovery_code: str
     new_password: str
-
-

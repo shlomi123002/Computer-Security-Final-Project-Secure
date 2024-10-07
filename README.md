@@ -1,14 +1,15 @@
-# Security Course Project: SQL Injection and XSS Attacks Demonstration
+# Computer Security Course Final Secure Project: SQL Injection and XSS Attacks Demonstration 
+# Develop a web system for an imaginary communication company called Comunication_LTD
 
 ## Description
 This project was developed for the **Computer Security** course as part of a demonstration of web vulnerabilities. The project simulates a telecommunications company, **Communication_LTD**, and includes both a vulnerable version and a secure version to showcase how SQL Injection (SQLi) and Cross-Site Scripting (XSS) attacks can be mitigated in web applications. The frontend is built using React, the backend uses FastAPI (Python), and MySQL is used as the relational database.
 
 ## Features
-- **User Registration**: New users can create accounts to access the site.
+- **User Register**: New users can create accounts to access the site.
 - **User Login**: Secure user login functionality.
 - **Password Recovery**: Users can recover forgotten passwords through email verification.
 - **Password Change**: Users can change their password securely.
-- **Client Management**: Users can add, edit, and manage clients.
+- **Client Management**: Users can add, delete, and manage clients.
 - **Logout Functionality**: Users can securely log out of their accounts.
 
 ## Technologies Used

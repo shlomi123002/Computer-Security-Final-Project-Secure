@@ -10,17 +10,12 @@ pwd_context = CryptContext(
     default="pbkdf2_sha256"
 )
 
-# Function to hash a password with salt
-
-# Password hashing function (synchronous)
+# Password hashing function
 def get_password_hash(password: str, salt: str) -> str:
-    # Hash the password with the salt using SHA256
     hashed_password = hmac.new(salt.encode(), password.encode(), hashlib.sha256).hexdigest()
     return hashed_password
 
-
 def send_recovery_code(email: str , recovery_code: str):
-
     # Create the email message
     msg = MIMEText(f"Your recovery code is: {recovery_code}")
     msg['Subject'] = 'Password Recovery Code'
@@ -38,22 +33,17 @@ def send_recovery_code(email: str , recovery_code: str):
         print(f"Failed to send email: {e}")
 
 def recovery_code_hashed(random_code: str , salt: str) -> str :
-
     random_code_with_salt = salt + random_code 
-
     # recivery code with salt + sha1 
     recovery_code = hashlib.sha1(random_code_with_salt.encode()).hexdigest()
 
     return recovery_code
 
 def check_common_password(password : str):
-    # Open the file in read mode
     with open('commonPasswords.txt', 'r') as file:
-        # Iterate over each line in the file
         for line in file:
-            # Check if the search string is in the current line
             if password in line:
-                return True  # The string was found in the file
+                return True 
     return False 
 
 

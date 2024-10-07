@@ -29,7 +29,6 @@ const Login = () => {
   const [error, setError] = useState('');
   const navigate = useNavigate();
 
-  
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
@@ -39,7 +38,6 @@ const Login = () => {
       });
 
       if (response.status === 200) {
-        // Navigate to the dashboard on successful login
         navigate('/Dashboard', { state: { username } });
       } else {
         setError('Invalid username or password');

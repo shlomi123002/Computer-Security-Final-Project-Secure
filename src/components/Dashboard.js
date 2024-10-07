@@ -17,7 +17,6 @@ const FullScreenContainer = styled('div')({
   backgroundRepeat: 'no-repeat',
 });
 
-
 const DashboardWrapper = styled(Paper)({
   padding: '40px',
   margin: '20px auto',
@@ -36,7 +35,6 @@ const Dashboard = () => {
   const { state } = useLocation();
   const { username } = state;
 
-  // Define the available packages
   const packages = [
     { name: 'Basic', speed: '50 Mbps', data: '200GB', price: '$20' },
     { name: 'Normal', speed: '200 Mbps', data: '500GB', price: '$30' },
@@ -124,7 +122,6 @@ const Dashboard = () => {
             margin="normal"
             required
           />
-
           <FormControl fullWidth margin="normal" required>
             <InputLabel>Select Package</InputLabel>
             <Select
@@ -139,7 +136,6 @@ const Dashboard = () => {
               ))}
             </Select>
           </FormControl>
-
           <FormControl fullWidth margin="normal" required>
             <InputLabel>Select Sector</InputLabel>
             <Select
@@ -152,20 +148,17 @@ const Dashboard = () => {
               <MenuItem value="Corporates">Corporates</MenuItem>
             </Select>
           </FormControl>
-
           <Box mt={3}>
             <Button type="submit" variant="contained" color="primary" fullWidth>
               Add Client
             </Button>
           </Box>
         </form>
-
         <Box mt={2} textAlign="center">
           <Button onClick={handleViewClients} variant="contained" color="inherit" fullWidth>
             View All Clients
           </Button>
         </Box>
-
         <Box mt={2} textAlign="center">
           <Button color="secondary" onClick={handleChangePassword}>
             Change Password
