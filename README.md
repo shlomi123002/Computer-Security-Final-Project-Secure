@@ -1,16 +1,23 @@
-# Computer Security Course Final Secure Project: SQL Injection and XSS Attacks Demonstration 
+# Computer Security Course Final Unsecure Project: SQL Injection and XSS Attacks Demonstration 
 # Develop a web system for an imaginary communication company called Comunication_LTD
 
 ## Description
-This project was developed for the **Computer Security** course as part of a demonstration of web vulnerabilities. The project simulates a telecommunications company, **Communication_LTD**, and includes both a vulnerable version and a secure version to showcase how SQL Injection (SQLi) and Cross-Site Scripting (XSS) attacks can be mitigated in web applications. The frontend is built using React, the backend uses FastAPI (Python), and MySQL is used as the relational database.
+This project was developed for the 
+**Computer Security** course to demonstrate common web vulnerabilities through a simulated telecommunications company, 
+**Communication_LTD**. The project includes both vulnerable and secure versions to showcase how attacks like 
+**SQL Injection (SQLi) and Cross-Site Scripting (XSS)** can be exploited and mitigated. Additionally, we implemented custom functionality for managing 
+**internet packages** and **marketing sectors**, which enhances the user experience and expands client management capabilities. The frontend uses 
+**React**, the backend is built with **FastAPI** (Python), and **MySQL** is the relational database.
 
 ## Features
-- **User Register**: New users can create accounts to access the site.
-- **User Login**: Secure user login functionality.
-- **Password Recovery**: Users can recover forgotten passwords through email verification.
-- **Password Change**: Users can change their password securely.
-- **Client Management**: Users can add, delete, and manage clients.
-- **Logout Functionality**: Users can securely log out of their accounts.
+- **User Register**: Create accounts for new users.
+- **User Login**: Secure login functionality.
+- **Password Recovery**: Email verification to reset passwords.
+- **Password Change**: Secure password update process.
+- **Client Management**: Add, edit, and delete client records.
+- **Internet Packages**: Customers can select personalized internet packages based on bandwidth, data limits, and price.
+- **Sectors**: Customers are assigned to specific marketing sectors according to their target audience or region.
+- **Logout**: Securely log out of the system.
 
 ## Technologies Used
 - **Frontend**: React.js
